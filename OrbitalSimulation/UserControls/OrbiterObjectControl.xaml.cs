@@ -46,7 +46,12 @@ namespace OrbitalSimulation.UserControls
             if (Item.IsCollided)
                 VisualEllipse.Fill = Brushes.Red;
             else
-                VisualEllipse.Fill = Brushes.Blue;
+            {
+                if (Item.IsStationary)
+                    VisualEllipse.Fill = Brushes.Orange;
+                else
+                    VisualEllipse.Fill = Brushes.Blue;
+            }
 
             if (!Item.IsStationary && !Item.IsCollided)
             {
@@ -55,9 +60,6 @@ namespace OrbitalSimulation.UserControls
 
                 VelocityLabel.Content = $"({Math.Round(Item.VelocityVector.X, 2)},{Math.Round(Item.VelocityVector.Y, 2)})";
 
-                var newDirection = GetDirectionalVector(
-                    new Point(this.Width / 2, this.Height / 2),
-                    new Point(this.Width / 2 + Item.VelocityVector.X, this.Height / 2 - Item.VelocityVector.Y));
                 VelocityLine.X1 = this.Width / 2;
                 VelocityLine.Y1 = this.Height / 2;
                 VelocityLine.X2 = VelocityLine.X1 + (Item.VelocityVector.X * 10);
@@ -68,17 +70,6 @@ namespace OrbitalSimulation.UserControls
                 VelocityLabel.Visibility = Visibility.Hidden;
                 VelocityLine.Visibility = Visibility.Hidden;
             }
-        }
-
-        private Point GetDirectionalVector(Point origin, Point velocity)
-        {
-            double angle = Math.Atan2((origin.Y - velocity.Y), (origin.X - velocity.X));
-            Point force = new Point();
-
-            force.X = Math.Cos(angle) * 50;
-            force.Y = Math.Sin(angle) * 50;
-
-            return force;
         }
 
         private void AddTrace(Canvas source)
