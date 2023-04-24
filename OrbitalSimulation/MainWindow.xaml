@@ -12,8 +12,12 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000"/>
+        <StackPanel Orientation="Horizontal">
+            <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000" Width="100" VerticalAlignment="Center"/>
+            <Button x:Name="StartButton" Content="Start" Width="100" Click="StartButton_Click"/>
+            <Button x:Name="StopButton" Content="Stop" Width="100" Click="StopButton_Click" IsEnabled="False"/>
+        </StackPanel>
 
-        <Canvas Grid.Row="1" x:Name="MainCanvas"/>
+        <Canvas Grid.Row="1" Background="Gray" x:Name="MainCanvas" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove"/>
     </Grid>
 </Window>

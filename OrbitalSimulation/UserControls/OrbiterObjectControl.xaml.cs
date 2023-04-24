@@ -60,8 +60,8 @@ namespace OrbitalSimulation.UserControls
                     new Point(this.Width / 2 + Item.VelocityVector.X, this.Height / 2 - Item.VelocityVector.Y));
                 VelocityLine.X1 = this.Width / 2;
                 VelocityLine.Y1 = this.Height / 2;
-                VelocityLine.X2 = this.Width / 2 - newDirection.X;
-                VelocityLine.Y2 = this.Height / 2 - newDirection.Y;
+                VelocityLine.X2 = VelocityLine.X1 + (Item.VelocityVector.X * 10);
+                VelocityLine.Y2 = VelocityLine.Y1 - (Item.VelocityVector.Y * 10);
             }
             else
             {
