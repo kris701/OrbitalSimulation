@@ -32,19 +32,25 @@ namespace OrbitalSimulation.UserControls
             InitializeComponent();
             Item = item;
             Traces = new List<Ellipse>();
-
-            VisualEllipse.Width = Item.Radius * 2;
-            VisualEllipse.Height = Item.Radius * 2;
         }
 
-        public void Refresh(Canvas source)
+        public void Refresh(Canvas source, double scale, Point offset)
         {
-            this.Margin = new Thickness(Item.Location.X - this.Width / 2, source.ActualHeight - Item.Location.Y - this.Height / 2, 0, 0);
+            this.Margin = new Thickness(((offset.X + Item.Location.X) * scale) - (this.Width / 2), (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - (this.Height / 2), 0, 0);
 
-            AddTrace(source);
+            if (!Item.IsStationary)
+                AddTrace(source, scale, offset);
+
+            VisualEllipse.Width = Item.Radius * 2 * scale;
+            VisualEllipse.Height = Item.Radius * 2 * scale;
 
             if (Item.IsCollided)
+            {
                 VisualEllipse.Fill = Brushes.Red;
+                foreach(var trace in Traces)
+                    source.Children.Remove(trace);
+                Traces.Clear();
+            }
             else
             {
                 if (Item.IsStationary)
@@ -62,8 +68,8 @@ namespace OrbitalSimulation.UserControls
 
                 VelocityLine.X1 = this.Width / 2;
                 VelocityLine.Y1 = this.Height / 2;
-                VelocityLine.X2 = VelocityLine.X1 + (Item.VelocityVector.X * 10);
-                VelocityLine.Y2 = VelocityLine.Y1 - (Item.VelocityVector.Y * 10);
+                VelocityLine.X2 = VelocityLine.X1 + (Item.VelocityVector.X * 10 * scale);
+                VelocityLine.Y2 = VelocityLine.Y1 - (Item.VelocityVector.Y * 10 * scale);
             }
             else
             {
@@ -72,7 +78,7 @@ namespace OrbitalSimulation.UserControls
             }
         }
 
-        private void AddTrace(Canvas source)
+        private void AddTrace(Canvas source, double scale, Point offset)
         {
             if (Traces.Count > _maxTraces)
             {
@@ -83,12 +89,12 @@ namespace OrbitalSimulation.UserControls
             var ellipse = new Ellipse()
             {
                 Width = 2,
-                Height = 2,
+                Height = 2, 
                 Stroke = Brushes.Black,
-                Margin = new Thickness(Item.Location.X - 1, source.ActualHeight - Item.Location.Y - 1, 0, 0)
-            };
+                Margin = new Thickness(((offset.X + Item.Location.X) * scale) - 1, (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - 1, 0, 0)
+        };
 
-            Traces.Add(ellipse);
+            Traces.Add(ellipse);    
             source.Children.Add(ellipse);
         }
     }

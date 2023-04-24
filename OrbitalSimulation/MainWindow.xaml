@@ -28,6 +28,7 @@
             <Label x:Name="DrawSizeLabel" Content="5" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <Canvas Grid.Row="1" Background="Gray" x:Name="MainCanvas" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove"/>
+        <Canvas Grid.Row="1" Background="Gray" x:Name="MainCanvas" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" Margin="-1,0,1,0" MouseWheel="MainCanvas_MouseWheel"/>
+        <Label x:Name="ScaleLabel" Grid.Row="1" Content="Scale: 1x" Margin="1" Width="100" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"/>
     </Grid>
 </Window>

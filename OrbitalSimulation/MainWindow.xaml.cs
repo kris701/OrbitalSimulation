@@ -26,6 +26,9 @@ namespace OrbitalSimulation
     {
         private bool _isLoaded = false;
 
+        private double _scale = 1;
+        private Point _offset = new Point();
+
         private bool _run = false;
         private IPhysicsEngine _engine = new BasicEngine();
         private List<OrbiterObjectControl> _visualObjects = new List<OrbiterObjectControl>();
@@ -80,7 +83,7 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Add(control);
 
             foreach (var control in _visualObjects)
-                control.Refresh(MainCanvas);
+                control.Refresh(MainCanvas, _scale, _offset);
         }
 
         private async void StartButton_Click(object sender, RoutedEventArgs e)
@@ -95,7 +98,7 @@ namespace OrbitalSimulation
             {
                 _engine.Update(_objects);
                 foreach (var control in _visualObjects)
-                    control.Refresh(MainCanvas);
+                    control.Refresh(MainCanvas, _scale, _offset);
 
                 await Task.Delay((int)SpeedSlider.Value);
             }
@@ -109,8 +112,11 @@ namespace OrbitalSimulation
             _run = false;
         }
 
+        private bool _isOffsetting = false;
+        private Point _startOffsetPoint = new Point();
+        private Point _currentOffsetPoint = new Point();
         private bool _isDrawing = false;
-        private Point _startPoint = new Point();
+        private Point _startDrawPoint = new Point();
         private Line _line = new Line();
         private Label _velocityLabel = new Label();
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
@@ -122,26 +128,31 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Remove(_velocityLabel);
                 return;
             }
-            if (e.RightButton == MouseButtonState.Pressed)
-                return;
-
-            _startPoint = e.GetPosition(MainCanvas);
-
-            _line = new Line()
+            else if (e.RightButton == MouseButtonState.Pressed)
             {
-                Stroke = Brushes.Red,
-                X1 = _startPoint.X,
-                Y1 = _startPoint.Y
-            };
-            MainCanvas.Children.Add(_line);
-            _velocityLabel = new Label()
+                _isOffsetting = true;
+                _startOffsetPoint = e.GetPosition(MainCanvas);
+                _currentOffsetPoint = _offset;
+            } else if (e.LeftButton == MouseButtonState.Pressed && !_isOffsetting)
             {
-                Content = "(0,0)",
-                Margin = new Thickness(_startPoint.X, _startPoint.Y, 0, 0)
-            };
-            MainCanvas.Children.Add(_velocityLabel);
+                _startDrawPoint = e.GetPosition(MainCanvas);
 
-            _isDrawing = true;
+                _line = new Line()
+                {
+                    Stroke = Brushes.Red,
+                    X1 = _startDrawPoint.X,
+                    Y1 = _startDrawPoint.Y
+                };
+                MainCanvas.Children.Add(_line);
+                _velocityLabel = new Label()
+                {
+                    Content = "(0,0)",
+                    Margin = new Thickness(_startDrawPoint.X, _startDrawPoint.Y, 0, 0)
+                };
+                MainCanvas.Children.Add(_velocityLabel);
+
+                _isDrawing = true;
+            }
         }
 
         private void MainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
@@ -153,20 +164,23 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Remove(_velocityLabel);
                 var thisLocation = e.GetPosition(MainCanvas);
 
-                var newVelocity = new Point((thisLocation.X - _startPoint.X) / 10, -(thisLocation.Y - _startPoint.Y) / 10);
+                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X) / 10, -(thisLocation.Y - _startDrawPoint.Y) / 10);
                 bool isStationary = false;
                 if (DrawStationary.IsChecked == true)
                     isStationary = true;
 
                 var newObject = new OrbiterObject(
                     isStationary,
-                    new Point(_startPoint.X, MainCanvas.ActualHeight - _startPoint.Y),
+                    new Point((_offset.X) + (_startDrawPoint.X * _scale), (MainCanvas.ActualHeight - (_offset.Y + _startDrawPoint.Y) * _scale)),
                     newVelocity,
                     DrawWeight.Value,
                     DrawSize.Value);
                 _objects.Add(newObject);
 
                 SetupObjects();
+            } else if (_isOffsetting)
+            {
+                _isOffsetting = false;
             }
         }
 
@@ -178,9 +192,14 @@ namespace OrbitalSimulation
                 _line.X2 = thisLocation.X;
                 _line.Y2 = thisLocation.Y;
 
-                var newVelocity = new Point((thisLocation.X - _startPoint.X) / 10, -(thisLocation.Y - _startPoint.Y) / 10);
+                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X) / 10, -(thisLocation.Y - _startDrawPoint.Y) / 10);
 
                 _velocityLabel.Content = $"({newVelocity.X},{newVelocity.Y})";
+            } else if (_isOffsetting)
+            {
+                var thisLocation = e.GetPosition(MainCanvas);
+                _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X), _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y));
+                SetupObjects();
             }
         }
 
@@ -206,6 +225,16 @@ namespace OrbitalSimulation
         {
             _objects.Clear();
 
+            SetupObjects();
+        }
+
+        private void MainCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            _scale += ((double)e.Delta / 1000);
+            _scale = Math.Round(_scale, 1);
+            if (_scale <= 0)
+                _scale = 0.1;
+            ScaleLabel.Content = $"Scale: {_scale}x";
             SetupObjects();
         }
     }
