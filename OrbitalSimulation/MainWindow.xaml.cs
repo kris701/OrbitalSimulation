@@ -52,24 +52,6 @@ namespace OrbitalSimulation
             SetupObjects();
 
             _isLoaded = true;
-
-            //var orbiter1 = new OrbiterObject(
-            //    false,
-            //    new Point(400, 100),
-            //    new Point(0, 0),
-            //    10000,
-            //    5);
-            //orbiter1.VelocityVector = new Point(engine.GetHorisontalOrbitalSpeed(planet, orbiter1),0);
-            //objects.Add(orbiter1);
-
-            //var orbiter2 = new OrbiterObject(
-            //    false,
-            //    new Point(400, 240),
-            //    new Point(0, 0),
-            //    10000,
-            //    5);
-            //orbiter2.VelocityVector = new Point(engine.GetHorisontalOrbitalSpeed(planet, orbiter2), 0);
-            //objects.Add(orbiter2);
         }
 
         private void SetupObjects()

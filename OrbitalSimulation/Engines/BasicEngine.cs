@@ -87,10 +87,12 @@ namespace OrbitalSimulation.Engines
 
         private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)
         {
+            // Total mass
             double combinedMass = 0;
             foreach (var obj in objects)
                 combinedMass += obj.KgMass;
 
+            // (Weighted) Combined velocity of all the objects
             Point combinedVelocity = new Point();
             foreach (var obj in objects)
             {
@@ -98,16 +100,18 @@ namespace OrbitalSimulation.Engines
                 combinedVelocity.Y += obj.VelocityVector.Y * (obj.KgMass / combinedMass);
             }
 
+            // (Weighted) Centroid position of all the objects.
+            // https://en.wikipedia.org/wiki/Centroid#By_geometric_decomposition
             Point newLocation = new Point();
             foreach (var obj in objects)
             {
                 newLocation.X += obj.Location.X * obj.KgMass;
                 newLocation.Y += obj.Location.Y * obj.KgMass;
             }
-
             newLocation.X = newLocation.X / combinedMass;
             newLocation.Y = newLocation.Y / combinedMass;
 
+            // (Weighted) Combined area for finding the new radius
             double combinedArea = 0;
             foreach (var obj in objects)
                 combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius) * (obj.KgMass / combinedMass);
