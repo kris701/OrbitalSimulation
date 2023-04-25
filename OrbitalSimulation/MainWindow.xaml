@@ -21,7 +21,7 @@
             <Button x:Name="RestartButton" Content="Restart" Width="100" Click="RestartButton_Click"/>
             <CheckBox x:Name="DrawStationary" Content="Draw Stationary" VerticalAlignment="Center"/>
             <Label Content="Weight: " VerticalAlignment="Center"/>
-            <Slider x:Name="DrawWeight" Value="1000" Minimum="1000" Maximum="10000000000" Width="100" SmallChange="1000" LargeChange="1000" VerticalAlignment="Center" ValueChanged="DrawWeight_ValueChanged"/>
+            <Slider x:Name="DrawWeight" Value="1000" Minimum="1000" Maximum="10000000000" Width="100" SmallChange="1000" LargeChange="1000000" VerticalAlignment="Center" ValueChanged="DrawWeight_ValueChanged"/>
             <Label x:Name="DrawWeightLabel" Content="1000" VerticalAlignment="Center"/>
             <Label Content="Size: " VerticalAlignment="Center"/>
             <Slider x:Name="DrawSize" Value="5" Minimum="1" Maximum="100" Width="100" VerticalAlignment="Center" ValueChanged="DrawSize_ValueChanged"/>

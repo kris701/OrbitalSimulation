@@ -14,15 +14,16 @@ namespace OrbitalSimulation.Models
         public Point VelocityVector { get; set; }
         public double KgMass { get; set; }
         public double Radius { get; set; }
-        public int Age { get; set; } = 0;
+        public bool IsNoclip { get; set; }
 
-        public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius)
+        public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius, bool isNoclip = false)
         {
             IsStationary = isStationary;
             Location = location;
             VelocityVector = velocityVector;
             KgMass = kgMass;
             Radius = radius;
+            IsNoclip = isNoclip;
         }
 
         public override bool Equals(object? obj)
@@ -38,12 +39,12 @@ namespace OrbitalSimulation.Models
                    EqualityComparer<Point>.Default.Equals(VelocityVector, other.VelocityVector) &&
                    KgMass == other.KgMass &&
                    Radius == other.Radius &&
-                   Age == other.Age;
+                   IsNoclip == other.IsNoclip;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(IsStationary, Location, VelocityVector, KgMass, Radius, Age);
+            return HashCode.Combine(IsStationary, Location, VelocityVector, KgMass, Radius, IsNoclip);
         }
     }
 }
