@@ -11,6 +11,6 @@ namespace OrbitalSimulation.Engines
     {
         public double GetOrbitalPeriod(OrbiterObject source);
         public double GetHorisontalOrbitalSpeed(OrbiterObject source, OrbiterObject orbiter);
-        public void Update(List<OrbiterObject> objects);
+        public bool Update(List<OrbiterObject> objects);
     }
 }

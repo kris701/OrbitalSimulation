@@ -96,9 +96,11 @@ namespace OrbitalSimulation
             _run = true;
             while (_run)
             {
-                _engine.Update(_objects);
-                foreach (var control in _visualObjects)
-                    control.Refresh(MainCanvas, _scale, _offset);
+                if (_engine.Update(_objects))
+                    SetupObjects();
+                else
+                    foreach (var control in _visualObjects)
+                        control.Refresh(MainCanvas, _scale, _offset);
 
                 await Task.Delay((int)SpeedSlider.Value);
             }

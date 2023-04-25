@@ -44,22 +44,12 @@ namespace OrbitalSimulation.UserControls
             VisualEllipse.Width = Item.Radius * 2 * scale;
             VisualEllipse.Height = Item.Radius * 2 * scale;
 
-            if (Item.IsCollided)
-            {
-                VisualEllipse.Fill = Brushes.Red;
-                foreach(var trace in Traces)
-                    source.Children.Remove(trace);
-                Traces.Clear();
-            }
+            if (Item.IsStationary)
+                VisualEllipse.Fill = Brushes.Orange;
             else
-            {
-                if (Item.IsStationary)
-                    VisualEllipse.Fill = Brushes.Orange;
-                else
-                    VisualEllipse.Fill = Brushes.Blue;
-            }
+                VisualEllipse.Fill = Brushes.Blue;
 
-            if (!Item.IsStationary && !Item.IsCollided)
+            if (!Item.IsStationary)
             {
                 VelocityLabel.Visibility = Visibility.Visible;
                 VelocityLine.Visibility = Visibility.Visible;
