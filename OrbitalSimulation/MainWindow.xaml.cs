@@ -169,9 +169,10 @@ namespace OrbitalSimulation
                 if (DrawStationary.IsChecked == true)
                     isStationary = true;
 
+                var invScale = 1 / _scale;
                 var newObject = new OrbiterObject(
                     isStationary,
-                    new Point((_offset.X) + (_startDrawPoint.X * _scale), (MainCanvas.ActualHeight - (_offset.Y + _startDrawPoint.Y) * _scale)),
+                    new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y),
                     newVelocity,
                     DrawWeight.Value,
                     DrawSize.Value);
