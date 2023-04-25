@@ -200,6 +200,7 @@ namespace OrbitalSimulation
             {
                 var thisLocation = e.GetPosition(MainCanvas);
                 _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X), _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y));
+                OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
                 SetupObjects();
             }
         }

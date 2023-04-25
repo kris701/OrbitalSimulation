@@ -53,7 +53,8 @@ namespace OrbitalSimulation.Engines
                 if (obj != self)
                     if (!obj.IsCollided)
                         if (Distance(obj.Location, self.Location) <= (obj.Radius + self.Radius))
-                            return true;
+                            if (obj.KgMass >= self.KgMass)
+                                return true;
             return false;
         }
 
