@@ -82,7 +82,7 @@ namespace OrbitalSimulation.UserControls
                 Height = 2, 
                 Stroke = Brushes.Black,
                 Margin = new Thickness(((offset.X + Item.Location.X) * scale) - 1, (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - 1, 0, 0)
-        };
+            };
 
             Traces.Add(ellipse);    
             source.Children.Add(ellipse);

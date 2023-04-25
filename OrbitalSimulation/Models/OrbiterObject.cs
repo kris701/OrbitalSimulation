@@ -14,6 +14,7 @@ namespace OrbitalSimulation.Models
         public Point VelocityVector { get; set; }
         public double KgMass { get; set; }
         public double Radius { get; set; }
+        public int Age { get; set; } = 0;
 
         public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius)
         {
@@ -36,12 +37,13 @@ namespace OrbitalSimulation.Models
                    EqualityComparer<Point>.Default.Equals(Location, other.Location) &&
                    EqualityComparer<Point>.Default.Equals(VelocityVector, other.VelocityVector) &&
                    KgMass == other.KgMass &&
-                   Radius == other.Radius;
+                   Radius == other.Radius &&
+                   Age == other.Age;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(IsStationary, Location, VelocityVector, KgMass, Radius);
+            return HashCode.Combine(IsStationary, Location, VelocityVector, KgMass, Radius, Age);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using OrbitalSimulation.Models;
+﻿using OrbitalSimulation.Helpers;
+using OrbitalSimulation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace OrbitalSimulation.Engines
 
         public double GetHorisontalOrbitalSpeed(OrbiterObject source, OrbiterObject orbiter)
         {
-            var distance = Distance(source.Location, orbiter.Location);
+            var distance = PointHelper.Distance(source.Location, orbiter.Location);
             return Math.Sqrt((GravitationalConstant * (source.KgMass * orbiter.KgMass)) / distance);
         }
 
@@ -45,6 +46,7 @@ namespace OrbitalSimulation.Engines
                 }
                 obja.Location = new Point(obja.Location.X + newVelocity.X, obja.Location.Y + newVelocity.Y);
                 obja.VelocityVector = newVelocity;
+                obja.Age++;
             }
 
             // Calculate Collisions
@@ -66,9 +68,6 @@ namespace OrbitalSimulation.Engines
             return requireUIRefresh;
         }
 
-        private double GetAreaOfRadius(double radius) => Math.PI * Math.Pow(radius, 2);
-        private double GetRadiusFromArea(double area) => Math.Sqrt(area / Math.PI);
-
         private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)
         {
             Point combinedVelocity = new Point();
@@ -82,8 +81,8 @@ namespace OrbitalSimulation.Engines
 
             double combinedArea = 0;
             foreach (var obj in objects)
-                combinedArea += GetAreaOfRadius(obj.Radius);
-            double newRadius = GetRadiusFromArea(combinedArea);
+                combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius);
+            double newRadius = CircleHelper.GetRadiusFromArea(combinedArea);
 
             double combinedMass = 0;
             foreach (var obj in objects)
@@ -99,18 +98,10 @@ namespace OrbitalSimulation.Engines
 
         private Point CalculateCentroid(HashSet<OrbiterObject> objects)
         {
-            Point currentPoint = new Point();
-
-            foreach(var obj in objects)
-            {
-                currentPoint.X += obj.Location.X;
-                currentPoint.Y += obj.Location.Y;
-            }
-
-            currentPoint.X = (1 / (double)objects.Count) * currentPoint.X;
-            currentPoint.Y = (1 / (double)objects.Count) * currentPoint.Y;
-
-            return currentPoint;
+            List<Point> points = new List<Point>();
+            foreach (var obj in objects)
+                points.Add(obj.Location);
+            return PointHelper.CalculateCentroid(points);
         }
 
         private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, List<OrbiterObject> objects)
@@ -118,7 +109,7 @@ namespace OrbitalSimulation.Engines
             HashSet<OrbiterObject> collidedObjects = new HashSet<OrbiterObject>();
             foreach (var obj in objects) {
                 if (obj != self) {
-                    if (Distance(obj.Location, self.Location) <= (obj.Radius + self.Radius))
+                    if (PointHelper.Distance(obj.Location, self.Location) <= (obj.Radius + self.Radius))
                     {
                         collidedObjects.Add(obj);
                         collidedObjects.Add(self);
@@ -136,22 +127,12 @@ namespace OrbitalSimulation.Engines
             return false;
         }
 
-        private double Distance(Point a, Point b)
-        {
-            return Math.Sqrt(
-                Math.Pow(a.X - b.X, 2) +
-                Math.Pow(a.Y - b.Y, 2)
-                );
-        }
-
         private Point GetGravitationalConstantForce(OrbiterObject obja, OrbiterObject objb)
         {
-            double distance = Distance(obja.Location, objb.Location);
+            double distance = PointHelper.Distance(obja.Location, objb.Location);
             double constant = GravitationalConstant * ((obja.KgMass * objb.KgMass) / Math.Pow(distance,2));
             double angle = Math.Atan2((objb.Location.Y - obja.Location.Y), (objb.Location.X - obja.Location.X));
             Point force = new Point();
-
-            var visualAngle = angle * (180 / Math.PI);
 
             var cosx = Math.Cos(angle);
             var siny = Math.Sin(angle);
