@@ -17,6 +17,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation
 {
@@ -131,6 +132,7 @@ namespace OrbitalSimulation
         private Point _startDrawPoint = new Point();
         private Line _line = new Line();
         private Label _velocityLabel = new Label();
+        private List<Line> _drawPrediction = new List<Line>();
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Pressed && _isDrawing)
@@ -167,6 +169,61 @@ namespace OrbitalSimulation
             }
         }
 
+        private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (_isDrawing)
+            {
+                var thisLocation = e.GetPosition(MainCanvas);
+                _line.X2 = thisLocation.X;
+                _line.Y2 = thisLocation.Y;
+
+                var invScale = 1 / _scale;
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 1000) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 1000) * invScale);
+
+                foreach (var point in _drawPrediction)
+                    MainCanvas.Children.Remove(point);
+                _drawPrediction.Clear();
+
+                var predictedPath = _engine.PredictPath(
+                    new OrbiterObject(
+                        false,
+                        new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y),
+                        newVelocity,
+                        DrawWeight.Value,
+                        DrawSize.Value),
+                    100,
+                    MainCanvas.ActualHeight * invScale);
+
+                var startPoint = predictedPath[0];
+                foreach(var point in predictedPath.Skip(1))
+                {
+                    var line = new Line()
+                    {
+                        X1 = (_offset.X + startPoint.X) * _scale,
+                        Y1 = MainCanvas.ActualHeight - (_offset.Y + startPoint.Y) * _scale,
+                        X2 = (_offset.X + point.X) * _scale,
+                        Y2 = MainCanvas.ActualHeight - (_offset.Y + point.Y) * _scale,
+                        StrokeThickness = 2,
+                        Stroke = Brushes.Green,
+                        IsHitTestVisible = false,
+                    };
+                    startPoint = point;
+                    _drawPrediction.Add(line);
+                    MainCanvas.Children.Add(line);
+                }
+
+                _velocityLabel.Content = $"({newVelocity.X},{newVelocity.Y})";
+            }
+            else if (_isOffsetting)
+            {
+                var thisLocation = e.GetPosition(MainCanvas);
+                var invScale = 1 / _scale;
+                _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X) * invScale, _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y) * invScale);
+                OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
+                SetupObjects();
+            }
+        }
+
         private void MainCanvas_MouseUp(object sender, MouseButtonEventArgs e)
         {
             if (_isDrawing)
@@ -174,12 +231,15 @@ namespace OrbitalSimulation
                 _isDrawing = false;
                 MainCanvas.Children.Remove(_line);
                 MainCanvas.Children.Remove(_velocityLabel);
+                foreach (var point in _drawPrediction)
+                    MainCanvas.Children.Remove(point);
+                _drawPrediction.Clear();
+
                 var thisLocation = e.GetPosition(MainCanvas);
 
                 var invScale = 1 / _scale;
-                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X) / 10, -(thisLocation.Y - _startDrawPoint.Y) / 10);
-                newVelocity.X *= invScale;
-                newVelocity.Y *= invScale;
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 1000) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 1000) * invScale);
+
                 bool isStationary = false;
                 if (DrawStationary.IsChecked == true)
                     isStationary = true;
@@ -196,30 +256,6 @@ namespace OrbitalSimulation
             } else if (_isOffsetting)
             {
                 _isOffsetting = false;
-            }
-        }
-
-        private void MainCanvas_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (_isDrawing)
-            {
-                var thisLocation = e.GetPosition(MainCanvas);
-                _line.X2 = thisLocation.X;
-                _line.Y2 = thisLocation.Y;
-
-                var invScale = 1 / _scale;
-                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X), -(thisLocation.Y - _startDrawPoint.Y));
-                newVelocity.X *= invScale;
-                newVelocity.Y *= invScale;
-
-                _velocityLabel.Content = $"({newVelocity.X},{newVelocity.Y})";
-            } else if (_isOffsetting)
-            {
-                var thisLocation = e.GetPosition(MainCanvas);
-                var invScale = 1 / _scale;
-                _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X) * invScale, _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y) * invScale);
-                OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
-                SetupObjects();
             }
         }
 

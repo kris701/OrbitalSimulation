@@ -46,7 +46,6 @@
                     <Label Content="Draw Style:"/>
                     <ComboBox x:Name="DrawStyleCombobox" SelectedIndex="0">
                         <ComboBoxItem Content="Direct"/>
-                        <ComboBoxItem Content="Nearest Orbit"/>
                     </ComboBox>
                     <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" VerticalAlignment="Center"/>
                 </StackPanel>

@@ -38,12 +38,6 @@ namespace OrbitalSimulation.Engines
             return orbitalVelocity;
         }
 
-        public double GetHorisontalOrbitalSpeed(OrbiterObject source, OrbiterObject orbiter)
-        {
-            var distance = PointHelper.Distance(source.Location, orbiter.Location);
-            return Math.Sqrt((GravitationalConstant * (source.KgMass * orbiter.KgMass)) / distance);
-        }
-
         public double GetOrbitalPeriod(OrbiterObject source)
         {
             return (2 * Math.PI * Math.Pow(source.Radius, 3/2)) / Math.Sqrt(GravitationalConstant * source.KgMass);
@@ -79,39 +73,41 @@ namespace OrbitalSimulation.Engines
             if (Objects.Count == 0)
                 return returnCode;
 
-            // Calculate Movement
-            foreach (var obja in Objects)
+            if (tickMultiplier <= 1)
             {
-                if (obja.IsStationary)
-                    continue;
-
-                var newVelocity = new Point(obja.VelocityVector.X, obja.VelocityVector.Y);
-                if (!obja.IsNoclip)
+                returnCode = UpdateLocations(returnCode, tickMultiplier);
+                return CollisionCheck(returnCode);
+            }
+            else
+            {
+                for (int i = 0; i < (int)tickMultiplier; i++)
                 {
-                    foreach (var objb in Objects)
-                    {
-                        if (objb != obja)
-                        {
-                            if (!objb.IsNoclip)
-                            {
-                                var force = GetGravitationalConstantForce(obja, objb);
-                                newVelocity.X += force.X;
-                                newVelocity.Y += force.Y;
-                            }
-                        }
-                    }
+                    returnCode = UpdateLocations(returnCode, 1);
+                    returnCode = CollisionCheck(returnCode);
                 }
-
-                obja.Location = new Point(obja.Location.X + newVelocity.X * tickMultiplier, obja.Location.Y + newVelocity.Y * tickMultiplier);
-                obja.VelocityVector = newVelocity;
-
-                returnCode = UpdateResult.ObjectsUpdated;
             }
 
-            if (returnCode == UpdateResult.NothingChanged)
-                return returnCode;
+            return returnCode;
+        }
 
-            // Calculate Collisions
+        private UpdateResult UpdateLocations(UpdateResult returnCode, double tickMultiplier)
+        {
+            foreach (var obj in Objects)
+            {
+                if (obj.IsStationary)
+                    continue;
+                var newVelocity = CalculateNextLocation(obj);
+                obj.Location = new Point(obj.Location.X + newVelocity.X * tickMultiplier, obj.Location.Y + newVelocity.Y * tickMultiplier);
+                obj.VelocityVector = newVelocity;
+
+                if (returnCode < UpdateResult.ObjectsUpdated)
+                    returnCode = UpdateResult.ObjectsUpdated;
+            }
+            return returnCode;
+        }
+
+        private UpdateResult CollisionCheck(UpdateResult returnCode)
+        {
             for (int i = 0; i < Objects.Count; i++)
             {
                 HashSet<OrbiterObject> newCollidedObjects = GetCollisionSet(Objects.ElementAt(i), Objects);
@@ -122,13 +118,34 @@ namespace OrbitalSimulation.Engines
                         Objects.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
                     Objects.Add(newObject);
 
-                    returnCode = UpdateResult.ObjectsAdded;
+                    if (returnCode < UpdateResult.ObjectsAdded)
+                        returnCode = UpdateResult.ObjectsAdded;
 
                     i = 0;
                 }
             }
-
             return returnCode;
+        }
+
+        public Point CalculateNextLocation(OrbiterObject obj)
+        {
+            var newVelocity = new Point(obj.VelocityVector.X, obj.VelocityVector.Y);
+            if (!obj.IsNoclip)
+            {
+                foreach (var objb in Objects)
+                {
+                    if (objb != obj)
+                    {
+                        if (!objb.IsNoclip)
+                        {
+                            var force = GetGravitationalConstantForce(obj, objb);
+                            newVelocity.X += force.X;
+                            newVelocity.Y += force.Y;
+                        }
+                    }
+                }
+            }
+            return newVelocity;
         }
 
         private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)
@@ -168,7 +185,9 @@ namespace OrbitalSimulation.Engines
                 newLocation,
                 combinedVelocity,
                 combinedMass,
-                newRadius);
+                newRadius,
+                false,
+                _currentID++);
         }
 
         private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, HashSet<OrbiterObject> objects)
@@ -220,6 +239,27 @@ namespace OrbitalSimulation.Engines
             accelerationVector.Y = siny * force;
 
             return accelerationVector;
+        }
+
+        public double GetLengthOfVector(Point vector) => Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2));
+
+        public List<Point> PredictPath(OrbiterObject obj, int maxPathPoints, double maxPathLength)
+        {
+            List<Point> returnPoints = new List<Point>();
+            OrbiterObject tempObject = new OrbiterObject(obj);
+            double currentLength = 0;
+            int current = 0;
+            while (currentLength < maxPathLength && returnPoints.Count < maxPathPoints)
+            {
+                var newVelocity = CalculateNextLocation(tempObject);
+                tempObject.Location = new Point(tempObject.Location.X + newVelocity.X, tempObject.Location.Y + newVelocity.Y);
+                tempObject.VelocityVector = newVelocity;
+                currentLength += GetLengthOfVector(newVelocity);
+                if (current++ % 100 == 0)
+                    returnPoints.Add(new Point(tempObject.Location.X, tempObject.Location.Y));
+            }
+
+            return returnPoints;
         }
     }
 }

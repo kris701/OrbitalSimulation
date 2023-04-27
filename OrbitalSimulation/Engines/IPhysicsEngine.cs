@@ -19,5 +19,7 @@ namespace OrbitalSimulation.Engines
         public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter);
         public OrbiterObject? GetNearestObject(OrbiterObject to);
         public UpdateResult Update(double tickMultiplier);
+        public Point CalculateNextLocation(OrbiterObject obj);
+        public List<Point> PredictPath(OrbiterObject obj, int maxPathPoints, double maxPathLength);
     }
 }

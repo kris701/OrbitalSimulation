@@ -38,12 +38,6 @@ namespace OrbitalSimulation.UserControls
         {
             this.Margin = new Thickness(((offset.X + Item.Location.X) * scale) - (this.Width / 2), (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - (this.Height / 2), 0, 0);
 
-            if (this.Margin.Left + Width < 0 || this.Margin.Left > source.ActualWidth || this.Margin.Top + Height < 0 || this.Margin.Top > source.ActualHeight)
-            {
-                ClearTraces(source);
-                return;
-            }
-
             if (!Item.IsStationary)
                 AddTrace(source, scale, offset);
 
@@ -87,18 +81,12 @@ namespace OrbitalSimulation.UserControls
                 Width = 2,
                 Height = 2, 
                 Stroke = Brushes.Black,
+                IsHitTestVisible = false,
                 Margin = new Thickness(((offset.X + Item.Location.X) * scale) - 1, (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - 1, 0, 0)
             };
 
             Traces.Add(ellipse);    
             source.Children.Add(ellipse);
-        }
-
-        private void ClearTraces(Canvas source)
-        {
-            foreach(var trace in Traces)
-                source.Children.Remove(trace);
-            Traces.Clear();
         }
     }
 }

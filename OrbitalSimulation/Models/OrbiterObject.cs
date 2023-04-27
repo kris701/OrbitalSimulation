@@ -10,14 +10,25 @@ namespace OrbitalSimulation.Models
     public class OrbiterObject : IEquatable<OrbiterObject?>
     {
         public int ID { get; set; } = -1;
-        public bool IsStationary { get; set; }
-        public Point Location { get; set; }
-        public Point VelocityVector { get; set; }
-        public double KgMass { get; set; }
-        public double Radius { get; set; }
-        public bool IsNoclip { get; set; }
+        public bool IsStationary { get; set; } = false;
+        public Point Location { get; set; } = new Point();
+        public Point VelocityVector { get; set; } = new Point();
+        public double KgMass { get; set; } = 0;
+        public double Radius { get; set; } = 0;
+        public bool IsNoclip { get; set; } = false;
 
-        public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius, bool isNoclip = false)
+        public OrbiterObject(OrbiterObject other)
+        {
+            ID = other.ID;
+            IsStationary = other.IsStationary;
+            Location = other.Location;
+            VelocityVector = other.VelocityVector;
+            KgMass = other.KgMass;
+            Radius = other.Radius;
+            IsNoclip = other.IsNoclip;
+        }
+
+        public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius, bool isNoclip = false, int iD = -1)
         {
             IsStationary = isStationary;
             Location = location;
@@ -25,6 +36,7 @@ namespace OrbitalSimulation.Models
             KgMass = kgMass;
             Radius = radius;
             IsNoclip = isNoclip;
+            ID = iD;
         }
 
         public override bool Equals(object? obj)
