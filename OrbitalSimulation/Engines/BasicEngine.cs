@@ -11,9 +11,16 @@ namespace OrbitalSimulation.Engines
 {
     public class BasicEngine : IPhysicsEngine
     {
+        public int _currentID = 0;
         public HashSet<OrbiterObject> Objects { get; set; } = new HashSet<OrbiterObject>();
 
         private readonly double GravitationalConstant = 6.674 * Math.Pow(10, -11);
+
+        public void AddNewObject(OrbiterObject obj)
+        {
+            obj.ID = _currentID++;
+            Objects.Add(obj);
+        }
 
         public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter)
         {
@@ -104,7 +111,7 @@ namespace OrbitalSimulation.Engines
                 {
                     var newObject = GetNewObjectFromSetOfObjects(newCollidedObjects);
                     foreach (var obj in newCollidedObjects)
-                        Objects.Remove(obj);
+                        Objects.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
                     Objects.Add(newObject);
 
                     requireUIRefresh = true;

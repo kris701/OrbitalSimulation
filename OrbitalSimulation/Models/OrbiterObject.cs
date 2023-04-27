@@ -9,6 +9,7 @@ namespace OrbitalSimulation.Models
 {
     public class OrbiterObject : IEquatable<OrbiterObject?>
     {
+        public int ID { get; set; } = -1;
         public bool IsStationary { get; set; }
         public Point Location { get; set; }
         public Point VelocityVector { get; set; }
@@ -44,7 +45,7 @@ namespace OrbitalSimulation.Models
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(IsStationary, Location, VelocityVector, KgMass, Radius, IsNoclip);
+            return HashCode.Combine(ID);
         }
     }
 }

@@ -28,10 +28,10 @@ namespace OrbitalSimulation
         private double _maxScale = 0.0001;
 
         private double _minWeight = 1000;
-        private double _maxWeight = 1 * Math.Pow(10, 30);
+        private double _maxWeight = 1 * Math.Pow(10, 50);
 
         private double _minSize = 10;
-        private double _maxSize = 1 * Math.Pow(10, 30);
+        private double _maxSize = 1 * Math.Pow(10, 50);
 
         private Point _offset = new Point();
 
@@ -61,7 +61,7 @@ namespace OrbitalSimulation
                 new Point(0, 0),
                 500000,
                 25);
-            _engine.Objects.Add(planet);
+            _engine.AddNewObject(planet);
 
             SetupObjects();
 
@@ -178,7 +178,7 @@ namespace OrbitalSimulation
                     newVelocity,
                     DrawWeight.Value,
                     DrawSize.Value);
-                _engine.Objects.Add(newObject);
+                _engine.AddNewObject(newObject);
 
                 SetupObjects();
             } else if (_isOffsetting)

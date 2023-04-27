@@ -12,9 +12,11 @@ namespace OrbitalSimulation.Engines
     {
         public HashSet<OrbiterObject> Objects { get; set; }
 
+        public void AddNewObject(OrbiterObject obj);
+
         public double GetOrbitalPeriod(OrbiterObject source);
         public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter);
-        public OrbiterObject? GetNearestObject();
+        public OrbiterObject? GetNearestObject(OrbiterObject to);
         public bool Update();
     }
 }

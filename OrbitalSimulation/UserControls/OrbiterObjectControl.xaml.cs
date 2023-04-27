@@ -25,7 +25,7 @@ namespace OrbitalSimulation.UserControls
     {
         private OrbiterObject Item { get; set; }
         private List<Ellipse> Traces { get; set; }
-        private int _maxTraces = 50;
+        private int _maxTraces = 100;
 
         public OrbiterObjectControl(OrbiterObject item)
         {
