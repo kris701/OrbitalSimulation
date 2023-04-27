@@ -32,8 +32,6 @@ namespace OrbitalSimulation
 
         private Point _offset = new Point();
 
-        private double _MaxWeight = 10000000;
-
         private bool _run = false;
         private IPhysicsEngine _engine = new BasicEngine();
         private List<OrbiterObjectControl> _visualObjects = new List<OrbiterObjectControl>();
@@ -77,6 +75,7 @@ namespace OrbitalSimulation
         {
             StartButton.IsEnabled = false;
             StopButton.IsEnabled = true;
+            RestartButton.IsEnabled = false;
 
             SetupObjects();
 
@@ -94,6 +93,7 @@ namespace OrbitalSimulation
 
             StartButton.IsEnabled = true;
             StopButton.IsEnabled = false;
+            RestartButton.IsEnabled = true;
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -119,7 +119,6 @@ namespace OrbitalSimulation
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
-                var invScale = 1 / _scale;
                 _isOffsetting = true;
                 _startOffsetPoint = e.GetPosition(MainCanvas);
                 _currentOffsetPoint = _offset;
@@ -154,12 +153,14 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Remove(_velocityLabel);
                 var thisLocation = e.GetPosition(MainCanvas);
 
+                var invScale = 1 / _scale;
                 var newVelocity = new Point((thisLocation.X - _startDrawPoint.X) / 10, -(thisLocation.Y - _startDrawPoint.Y) / 10);
+                newVelocity.X *= invScale;
+                newVelocity.Y *= invScale;
                 bool isStationary = false;
                 if (DrawStationary.IsChecked == true)
                     isStationary = true;
 
-                var invScale = 1 / _scale;
                 var newObject = new OrbiterObject(
                     isStationary,
                     new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y),
@@ -183,16 +184,17 @@ namespace OrbitalSimulation
                 _line.X2 = thisLocation.X;
                 _line.Y2 = thisLocation.Y;
 
-                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X) / 10, -(thisLocation.Y - _startDrawPoint.Y) / 10);
+                var invScale = 1 / _scale;
+                var newVelocity = new Point((thisLocation.X - _startDrawPoint.X), -(thisLocation.Y - _startDrawPoint.Y));
+                newVelocity.X *= invScale;
+                newVelocity.Y *= invScale;
 
                 _velocityLabel.Content = $"({newVelocity.X},{newVelocity.Y})";
             } else if (_isOffsetting)
             {
                 var thisLocation = e.GetPosition(MainCanvas);
                 var invScale = 1 / _scale;
-                _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X), _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y));
-                _offset.X *= invScale;
-                _offset.Y *= invScale;
+                _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X) * invScale, _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y) * invScale);
                 OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
                 SetupObjects();
             }
@@ -230,12 +232,28 @@ namespace OrbitalSimulation
 
         private void MainCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
+            var curInvScale = 1 / _scale;
+            var startOffsetPoint = e.GetPosition(MainCanvas);
+            startOffsetPoint.Y -= MainCanvas.ActualHeight;
+            startOffsetPoint.X *= curInvScale;
+            startOffsetPoint.Y *= curInvScale;
+
             _scale += ((double)e.Delta / 100000000);
             _scale = Math.Round(_scale, 9);
             if (_scale <= _minScale)
                 _scale = _minScale;
             if (_scale >= _maxScale)
                 _scale = _maxScale;
+
+            var newInvScale = 1 / _scale;
+            var newOffsetPoint = e.GetPosition(MainCanvas);
+            newOffsetPoint.Y -= MainCanvas.ActualHeight;
+            newOffsetPoint.X *= newInvScale;
+            newOffsetPoint.Y *= newInvScale;
+
+            _offset = new Point(_offset.X - (startOffsetPoint.X - newOffsetPoint.X), _offset.Y + (startOffsetPoint.Y - newOffsetPoint.Y));
+
+            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
             ScaleLabel.Content = $"Scale: {_scale}x";
             ScaleSlider.Value = _scale;
             SetupObjects();
