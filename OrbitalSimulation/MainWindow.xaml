@@ -31,24 +31,23 @@
                     <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
                     <Button x:Name="StopButton" Content="Stop" Click="StopButton_Click" IsEnabled="False"/>
                     <Button x:Name="RestartButton" Content="Restart" Click="RestartButton_Click"/>
-                </StackPanel>
-
-                <StackPanel Background="LightGray" Margin="5">
                     <Label x:Name="SpeedSliderLabel" Content="Refresh Rate: 10ms" VerticalAlignment="Center"/>
-                    <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000" VerticalAlignment="Center" ValueChanged="SpeedSlider_ValueChanged"/>
+                    <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000" ValueChanged="SpeedSlider_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Background="LightGray" Margin="5">
                     <Label x:Name="DrawWeightLabel" Content="Weight: 1000kg" VerticalAlignment="Center"/>
-                    <Slider x:Name="DrawWeight" Value="1000" Minimum="1000" Maximum="100000000000000000000000000000" SmallChange="1000" LargeChange="10000" VerticalAlignment="Center" ValueChanged="DrawWeight_ValueChanged"/>
-                </StackPanel>
-
-                <StackPanel Background="LightGray" Margin="5">
+                    <Slider x:Name="DrawWeight" Value="1000" ValueChanged="DrawWeight_ValueChanged" />
                     <Label x:Name="DrawSizeLabel" Content="Size: 50" VerticalAlignment="Center"/>
-                    <Slider x:Name="DrawSize" Value="50" Minimum="10" Maximum="1000000000000000000000000000000000000" VerticalAlignment="Center" ValueChanged="DrawSize_ValueChanged"/>
+                    <Slider x:Name="DrawSize" Value="50" ValueChanged="DrawSize_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Background="LightGray" Margin="5">
+                    <Label Content="Draw Style:"/>
+                    <ComboBox x:Name="DrawStyleCombobox" SelectedIndex="0">
+                        <ComboBoxItem Content="Direct"/>
+                        <ComboBoxItem Content="Nearest Orbit"/>
+                    </ComboBox>
                     <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" VerticalAlignment="Center"/>
                 </StackPanel>
             </StackPanel>

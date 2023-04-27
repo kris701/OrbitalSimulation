@@ -19,9 +19,6 @@ using System.Windows.Shapes;
 
 namespace OrbitalSimulation
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
     public partial class MainWindow : Window
     {
         private bool _isLoaded = false;
@@ -30,16 +27,30 @@ namespace OrbitalSimulation
         private double _minScale = 0.0000000001;
         private double _maxScale = 0.0001;
 
+        private double _minWeight = 1000;
+        private double _maxWeight = 1 * Math.Pow(10, 30);
+
+        private double _minSize = 10;
+        private double _maxSize = 1 * Math.Pow(10, 30);
+
         private Point _offset = new Point();
 
         private bool _run = false;
         private IPhysicsEngine _engine = new BasicEngine();
         private List<OrbiterObjectControl> _visualObjects = new List<OrbiterObjectControl>();
-        private List<OrbiterObject> _objects = new List<OrbiterObject>();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            DrawWeight.Minimum = _minWeight;
+            DrawWeight.Maximum = _maxWeight;
+
+            DrawSize.Minimum = _minSize;
+            DrawSize.Maximum = _maxSize;
+
+            ScaleSlider.Minimum = _minScale;
+            ScaleSlider.Maximum = _maxScale;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -50,7 +61,7 @@ namespace OrbitalSimulation
                 new Point(0, 0),
                 500000,
                 25);
-            _objects.Add(planet);
+            _engine.Objects.Add(planet);
 
             SetupObjects();
 
@@ -60,7 +71,7 @@ namespace OrbitalSimulation
         private void SetupObjects()
         {
             _visualObjects = new List<OrbiterObjectControl>();
-            foreach (var obj in _objects)
+            foreach (var obj in _engine.Objects)
                 _visualObjects.Add(new OrbiterObjectControl(obj));
 
             MainCanvas.Children.Clear();
@@ -82,7 +93,7 @@ namespace OrbitalSimulation
             _run = true;
             while (_run)
             {
-                if (_engine.Update(_objects))
+                if (_engine.Update())
                     SetupObjects();
                 else
                     foreach (var control in _visualObjects)
@@ -167,7 +178,7 @@ namespace OrbitalSimulation
                     newVelocity,
                     DrawWeight.Value,
                     DrawSize.Value);
-                _objects.Add(newObject);
+                _engine.Objects.Add(newObject);
 
                 SetupObjects();
             } else if (_isOffsetting)
@@ -220,7 +231,7 @@ namespace OrbitalSimulation
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
-            _objects.Clear();
+            _engine.Objects.Clear();
             _offset = new Point();
             _scale = 0.00005;
 

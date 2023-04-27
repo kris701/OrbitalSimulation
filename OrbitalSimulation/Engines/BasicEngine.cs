@@ -11,8 +11,25 @@ namespace OrbitalSimulation.Engines
 {
     public class BasicEngine : IPhysicsEngine
     {
+        public HashSet<OrbiterObject> Objects { get; set; } = new HashSet<OrbiterObject>();
+
         private readonly double GravitationalConstant = 6.674 * Math.Pow(10, -11);
-        private Random _rnd = new Random();
+
+        public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter)
+        {
+            Point orbitalVelocity = new Point();
+            double angle = Math.Atan2((orbiter.Location.Y - source.Location.Y), (orbiter.Location.X - source.Location.X));
+            double distance = PointHelper.Distance(source.Location, orbiter.Location);
+            double force = Math.Sqrt((GravitationalConstant * (source.KgMass * orbiter.KgMass)) / distance);
+
+            var cosx = Math.Cos(angle);
+            var siny = Math.Sin(angle);
+
+            orbitalVelocity.X = cosx * force;
+            orbitalVelocity.Y = siny * force;
+
+            return orbitalVelocity;
+        }
 
         public double GetHorisontalOrbitalSpeed(OrbiterObject source, OrbiterObject orbiter)
         {
@@ -25,12 +42,36 @@ namespace OrbitalSimulation.Engines
             return (2 * Math.PI * Math.Pow(source.Radius, 3/2)) / Math.Sqrt(GravitationalConstant * source.KgMass);
         }
 
-        public bool Update(List<OrbiterObject> objects)
+        public OrbiterObject? GetNearestObject(OrbiterObject to)
+        {
+            if (Objects.Count == 0)
+                return null;
+            if (Objects.Count == 1)
+                return to;
+
+            OrbiterObject? nearest = null;
+            double nearestDistance = double.MaxValue;
+            foreach(var obj in Objects)
+            {
+                if (obj != to)
+                {
+                    double dist = PointHelper.Distance(to.Location, obj.Location);
+                    if (dist < nearestDistance)
+                    {
+                        nearestDistance = dist;
+                        nearest = obj;
+                    }
+                }
+            }
+            return nearest;
+        }
+
+        public bool Update()
         {
             bool requireUIRefresh = false;
 
             // Calculate Movement
-            foreach (var obja in objects)
+            foreach (var obja in Objects)
             {
                 if (obja.IsStationary)
                     continue;
@@ -38,7 +79,7 @@ namespace OrbitalSimulation.Engines
                 var newVelocity = new Point(obja.VelocityVector.X, obja.VelocityVector.Y);
                 if (!obja.IsNoclip)
                 {
-                    foreach (var objb in objects)
+                    foreach (var objb in Objects)
                     {
                         if (objb != obja)
                         {
@@ -56,15 +97,15 @@ namespace OrbitalSimulation.Engines
             }
 
             // Calculate Collisions
-            for (int i = 0; i < objects.Count; i++)
+            for (int i = 0; i < Objects.Count; i++)
             {
-                HashSet<OrbiterObject> newCollidedObjects = GetCollisionSet(objects[i], objects);
+                HashSet<OrbiterObject> newCollidedObjects = GetCollisionSet(Objects.ElementAt(i), Objects);
                 if (newCollidedObjects.Count > 0)
                 {
                     var newObject = GetNewObjectFromSetOfObjects(newCollidedObjects);
                     foreach (var obj in newCollidedObjects)
-                        objects.Remove(obj);
-                    objects.Add(newObject);
+                        Objects.Remove(obj);
+                    Objects.Add(newObject);
 
                     requireUIRefresh = true;
 
@@ -115,16 +156,7 @@ namespace OrbitalSimulation.Engines
                 newRadius);
         }
 
-        public double GetVelocityEnergy(Point velocity) => Math.Sqrt(Math.Pow(velocity.X, 2) + Math.Pow(velocity.Y, 2));
-
-        public double GetPseudoDoubleWithinRange(double lowerBound, double upperBound)
-        {
-            var rDouble = _rnd.NextDouble();
-            var rRangeDouble = rDouble * (upperBound - lowerBound) + lowerBound;
-            return rRangeDouble;
-        }
-
-        private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, List<OrbiterObject> objects)
+        private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, HashSet<OrbiterObject> objects)
         {
             HashSet<OrbiterObject> collidedObjects = new HashSet<OrbiterObject>();
             bool isFreeFromCollisions = true;
@@ -159,19 +191,20 @@ namespace OrbitalSimulation.Engines
 
         private Point GetGravitationalConstantForce(OrbiterObject obja, OrbiterObject objb)
         {
+            Point accelerationVector = new Point();
+
             double distance = PointHelper.Distance(obja.Location, objb.Location);
             double constant = ((GravitationalConstant * obja.KgMass * objb.KgMass) / Math.Pow(distance,2));
-            double acceleration = constant / obja.KgMass;
+            double force = constant / obja.KgMass;
             double angle = Math.Atan2((objb.Location.Y - obja.Location.Y), (objb.Location.X - obja.Location.X));
-            Point force = new Point();
 
             var cosx = Math.Cos(angle);
             var siny = Math.Sin(angle);
 
-            force.X = cosx * acceleration;
-            force.Y = siny * acceleration;
+            accelerationVector.X = cosx * force;
+            accelerationVector.Y = siny * force;
 
-            return force;
+            return accelerationVector;
         }
     }
 }
