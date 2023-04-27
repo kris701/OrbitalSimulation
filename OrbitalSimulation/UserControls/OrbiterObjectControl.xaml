@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:OrbitalSimulation.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="200" Width="200" Height="200">
-    <Grid>
+    <Grid ClipToBounds="False">
         <Ellipse x:Name="VisualEllipse" Fill="Blue" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         <Label x:Name="VelocityLabel" Content="(0,0)" HorizontalAlignment="Center" VerticalAlignment="Top"/>
         <Line x:Name="VelocityLine" X1="0" Y1="0" X2="50" Y2="50" Stroke="Red" StrokeThickness="1"/>

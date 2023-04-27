@@ -5,31 +5,63 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:OrbitalSimulation"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="1000" Loaded="Window_Loaded">
+        Title="MainWindow" Height="850" Width="1000" Loaded="Window_Loaded" ResizeMode="NoResize">
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
-            <RowDefinition Height="35"/>
             <RowDefinition/>
+            <RowDefinition Height="300"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal">
-            <Label Content="Refresh Rate: " VerticalAlignment="Center"/>
-            <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000" Width="100" VerticalAlignment="Center" ValueChanged="SpeedSlider_ValueChanged"/>
-            <Label x:Name="SpeedSliderLabel" Content="10" VerticalAlignment="Center"/>
-            <Button x:Name="StartButton" Content="Start" Width="100" Click="StartButton_Click"/>
-            <Button x:Name="StopButton" Content="Stop" Width="100" Click="StopButton_Click" IsEnabled="False"/>
-            <Button x:Name="RestartButton" Content="Restart" Width="100" Click="RestartButton_Click"/>
-            <CheckBox x:Name="DrawStationary" Content="Draw Stationary" VerticalAlignment="Center"/>
-            <Label Content="Weight: " VerticalAlignment="Center"/>
-            <Slider x:Name="DrawWeight" Value="1000" Minimum="1000" Maximum="10000000000" Width="100" SmallChange="1000" LargeChange="1000000" VerticalAlignment="Center" ValueChanged="DrawWeight_ValueChanged"/>
-            <Label x:Name="DrawWeightLabel" Content="1000" VerticalAlignment="Center"/>
-            <Label Content="Size: " VerticalAlignment="Center"/>
-            <Slider x:Name="DrawSize" Value="5" Minimum="1" Maximum="100" Width="100" VerticalAlignment="Center" ValueChanged="DrawSize_ValueChanged"/>
-            <Label x:Name="DrawSizeLabel" Content="5" VerticalAlignment="Center"/>
+        <Canvas Background="Gray" x:Name="MainCanvas" Margin="5" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" ClipToBounds="True" MouseWheel="MainCanvas_MouseWheel"/>
+        <StackPanel  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="200">
+            <Label x:Name="ScaleLabel" Content="Scale: 1x" Margin="1"/>
+            <Slider x:Name="ScaleSlider" Value="0.00005" Maximum="0.0001" Minimum="0.0000000001" ValueChanged="ScaleSlider_ValueChanged"/>
+            <Label x:Name="OffsetLabel" Content="Offset: (0,0)"/>
         </StackPanel>
 
-        <Canvas Grid.Row="1" Background="Gray" x:Name="MainCanvas" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" Margin="-1,0,1,0" MouseWheel="MainCanvas_MouseWheel"/>
-        <Label x:Name="ScaleLabel" Grid.Row="1" Content="Scale: 1x" Margin="1" Width="100" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-        <Label x:Name="OffsetLabel" Grid.Row="1" Content="Offset: (0,0)" Margin="1,30,1,1" Width="100" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+        <Grid x:Name="ControlGrid" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0">
+                <StackPanel Background="LightGray" Margin="5">
+                    <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
+                    <Button x:Name="StopButton" Content="Stop" Click="StopButton_Click" IsEnabled="False"/>
+                    <Button x:Name="RestartButton" Content="Restart" Click="RestartButton_Click"/>
+                </StackPanel>
+
+                <StackPanel Background="LightGray" Margin="5">
+                    <Label x:Name="SpeedSliderLabel" Content="Refresh Rate: 10ms" VerticalAlignment="Center"/>
+                    <Slider x:Name="SpeedSlider" Value="10" Minimum="1" Maximum="1000" VerticalAlignment="Center" ValueChanged="SpeedSlider_ValueChanged"/>
+                </StackPanel>
+
+                <StackPanel Background="LightGray" Margin="5">
+                    <Label x:Name="DrawWeightLabel" Content="Weight: 1000kg" VerticalAlignment="Center"/>
+                    <Slider x:Name="DrawWeight" Value="1000" Minimum="1000" Maximum="100000000000000000000000000000" SmallChange="1000" LargeChange="10000" VerticalAlignment="Center" ValueChanged="DrawWeight_ValueChanged"/>
+                </StackPanel>
+
+                <StackPanel Background="LightGray" Margin="5">
+                    <Label x:Name="DrawSizeLabel" Content="Size: 50" VerticalAlignment="Center"/>
+                    <Slider x:Name="DrawSize" Value="50" Minimum="10" Maximum="1000000000000000000000000000000000000" VerticalAlignment="Center" ValueChanged="DrawSize_ValueChanged"/>
+                </StackPanel>
+
+                <StackPanel Background="LightGray" Margin="5">
+                    <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" VerticalAlignment="Center"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Grid.Column="1">
+                <StackPanel Background="LightGray" Margin="5">
+                    <Label Content="Presets" HorizontalAlignment="Center"/>
+                    <Button x:Name="EarthPresetButton" Content="Earth" Click="EarthPresetButton_Click"/>
+                    <Button x:Name="MoonPresetButton" Content="Moon" Click="MoonPresetButton_Click"/>
+                </StackPanel>
+            </StackPanel>
+
+
+        </Grid>
     </Grid>
 </Window>

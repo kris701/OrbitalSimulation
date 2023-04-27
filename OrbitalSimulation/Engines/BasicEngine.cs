@@ -12,8 +12,6 @@ namespace OrbitalSimulation.Engines
     public class BasicEngine : IPhysicsEngine
     {
         private readonly double GravitationalConstant = 6.674 * Math.Pow(10, -11);
-        private double _shrapnellSize = 2;
-        private double _penetrationFactor = 0.25;
         private Random _rnd = new Random();
 
         public double GetHorisontalOrbitalSpeed(OrbiterObject source, OrbiterObject orbiter)
@@ -162,15 +160,16 @@ namespace OrbitalSimulation.Engines
         private Point GetGravitationalConstantForce(OrbiterObject obja, OrbiterObject objb)
         {
             double distance = PointHelper.Distance(obja.Location, objb.Location);
-            double constant = GravitationalConstant * ((obja.KgMass * objb.KgMass) / Math.Pow(distance,2));
+            double constant = ((GravitationalConstant * obja.KgMass * objb.KgMass) / Math.Pow(distance,2));
+            double acceleration = constant / obja.KgMass;
             double angle = Math.Atan2((objb.Location.Y - obja.Location.Y), (objb.Location.X - obja.Location.X));
             Point force = new Point();
 
             var cosx = Math.Cos(angle);
             var siny = Math.Sin(angle);
 
-            force.X = cosx * constant;
-            force.Y = siny * constant;
+            force.X = cosx * acceleration;
+            force.Y = siny * acceleration;
 
             return force;
         }

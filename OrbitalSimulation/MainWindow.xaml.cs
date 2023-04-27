@@ -26,8 +26,13 @@ namespace OrbitalSimulation
     {
         private bool _isLoaded = false;
 
-        private double _scale = 1;
+        private double _scale = 0.00005;
+        private double _minScale = 0.0000000001;
+        private double _maxScale = 0.0001;
+
         private Point _offset = new Point();
+
+        private double _MaxWeight = 10000000;
 
         private bool _run = false;
         private IPhysicsEngine _engine = new BasicEngine();
@@ -45,7 +50,7 @@ namespace OrbitalSimulation
                 true,
                 new Point(400, 200),
                 new Point(0, 0),
-                10000000000,
+                500000,
                 25);
             _objects.Add(planet);
 
@@ -114,6 +119,7 @@ namespace OrbitalSimulation
             }
             else if (e.RightButton == MouseButtonState.Pressed)
             {
+                var invScale = 1 / _scale;
                 _isOffsetting = true;
                 _startOffsetPoint = e.GetPosition(MainCanvas);
                 _currentOffsetPoint = _offset;
@@ -183,7 +189,10 @@ namespace OrbitalSimulation
             } else if (_isOffsetting)
             {
                 var thisLocation = e.GetPosition(MainCanvas);
+                var invScale = 1 / _scale;
                 _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X), _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y));
+                _offset.X *= invScale;
+                _offset.Y *= invScale;
                 OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
                 SetupObjects();
             }
@@ -192,36 +201,77 @@ namespace OrbitalSimulation
         private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isLoaded)
-                SpeedSliderLabel.Content = $"{Math.Round(e.NewValue,0)}";
+                SpeedSliderLabel.Content = $"Refresh Rate: {Math.Round(e.NewValue, 0)}ms";
         }
 
         private void DrawWeight_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isLoaded)
-                DrawWeightLabel.Content = $"{Math.Round(e.NewValue, 0)}";
+                DrawWeightLabel.Content = $"Weight: {Math.Round(e.NewValue, 0)}kg";
         }
 
         private void DrawSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isLoaded)
-                DrawSizeLabel.Content = $"{Math.Round(e.NewValue, 0)}";
+                DrawSizeLabel.Content = $"Size: {Math.Round(e.NewValue, 0)}";
         }
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
             _objects.Clear();
+            _offset = new Point();
+            _scale = 0.00005;
+
+            ScaleLabel.Content = $"Scale: {_scale}x";
+            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
 
             SetupObjects();
         }
 
         private void MainCanvas_MouseWheel(object sender, MouseWheelEventArgs e)
         {
-            _scale += ((double)e.Delta / 1000);
-            _scale = Math.Round(_scale, 1);
-            if (_scale <= 0)
-                _scale = 0.1;
+            _scale += ((double)e.Delta / 100000000);
+            _scale = Math.Round(_scale, 9);
+            if (_scale <= _minScale)
+                _scale = _minScale;
+            if (_scale >= _maxScale)
+                _scale = _maxScale;
             ScaleLabel.Content = $"Scale: {_scale}x";
+            ScaleSlider.Value = _scale;
             SetupObjects();
+        }
+
+        private void EarthPresetButton_Click(object sender, RoutedEventArgs e)
+        {
+            DrawWeight.Value = 5.972 * Math.Pow(10,24);
+            DrawSize.Value = 6371000;
+            UpdateAllControlLabels();
+        }
+
+        private void MoonPresetButton_Click(object sender, RoutedEventArgs e)
+        {
+            DrawWeight.Value = 7.34767309 * Math.Pow(10, 22);
+            DrawSize.Value = 1737400;
+            UpdateAllControlLabels();
+        }
+
+        private void UpdateAllControlLabels()
+        {
+            ScaleLabel.Content = $"Scale: {_scale}x";
+            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
+            SpeedSliderLabel.Content = $"Refresh Rate: {Math.Round(SpeedSlider.Value, 0)}ms";
+            DrawWeightLabel.Content = $"Weight: {Math.Round(DrawWeight.Value, 0)}kg";
+            DrawSizeLabel.Content = $"Size: {Math.Round(DrawSize.Value, 0)}";
+        }
+
+        private void ScaleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_isLoaded)
+            {
+                _scale = e.NewValue;
+                ScaleLabel.Content = $"Scale: {_scale}x";
+                SetupObjects();
+            }
         }
     }
 }
