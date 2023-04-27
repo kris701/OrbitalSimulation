@@ -56,6 +56,7 @@
                     <Label Content="Presets" HorizontalAlignment="Center"/>
                     <Button x:Name="EarthPresetButton" Content="Earth" Click="EarthPresetButton_Click"/>
                     <Button x:Name="MoonPresetButton" Content="Moon" Click="MoonPresetButton_Click"/>
+                    <Button x:Name="SunPresetButton" Content="Sun" Click="SunPresetButton_Click"/>
                 </StackPanel>
             </StackPanel>
 

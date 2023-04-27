@@ -1,5 +1,6 @@
 ﻿using OrbitalSimulation.Engines;
 using OrbitalSimulation.Models;
+using OrbitalSimulation.Presets;
 using OrbitalSimulation.UserControls;
 using System;
 using System.Collections.Generic;
@@ -318,15 +319,25 @@ namespace OrbitalSimulation
 
         private void EarthPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            DrawWeight.Value = 5.972 * Math.Pow(10,24);
-            DrawSize.Value = 6371000;
+            var presetObject = PresetBuilder.GetEarth();
+            DrawWeight.Value = presetObject.KgMass;
+            DrawSize.Value = presetObject.Radius;
             UpdateAllControlLabels();
         }
 
         private void MoonPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            DrawWeight.Value = 7.34767309 * Math.Pow(10, 22);
-            DrawSize.Value = 1737400;
+            var presetObject = PresetBuilder.GetMoon();
+            DrawWeight.Value = presetObject.KgMass;
+            DrawSize.Value = presetObject.Radius;
+            UpdateAllControlLabels();
+        }
+
+        private void SunPresetButton_Click(object sender, RoutedEventArgs e)
+        {
+            var presetObject = PresetBuilder.GetSun();
+            DrawWeight.Value = presetObject.KgMass;
+            DrawSize.Value = presetObject.Radius;
             UpdateAllControlLabels();
         }
 
