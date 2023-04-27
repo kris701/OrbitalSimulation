@@ -133,6 +133,7 @@ namespace OrbitalSimulation
         private Line _line = new Line();
         private Label _velocityLabel = new Label();
         private List<Line> _drawPrediction = new List<Line>();
+        private OrbiterObject _newObject = new OrbiterObject();
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Pressed && _isDrawing)
@@ -165,6 +166,16 @@ namespace OrbitalSimulation
                 };
                 MainCanvas.Children.Add(_velocityLabel);
 
+                var invScale = 1 / _scale;
+                _newObject = new OrbiterObject();
+                _newObject.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
+                _newObject.KgMass = DrawWeight.Value;
+                _newObject.Radius = DrawSize.Value;
+                if (DrawStationary.IsChecked == true)
+                    _newObject.IsStationary = true;
+                else
+                    _newObject.IsStationary = false;
+
                 _isDrawing = true;
             }
         }
@@ -184,13 +195,10 @@ namespace OrbitalSimulation
                     MainCanvas.Children.Remove(point);
                 _drawPrediction.Clear();
 
+                _newObject.VelocityVector = newVelocity;
+
                 var predictedPath = _engine.PredictPath(
-                    new OrbiterObject(
-                        false,
-                        new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y),
-                        newVelocity,
-                        DrawWeight.Value,
-                        DrawSize.Value),
+                    _newObject,
                     100,
                     MainCanvas.ActualHeight * invScale);
 
@@ -240,17 +248,8 @@ namespace OrbitalSimulation
                 var invScale = 1 / _scale;
                 var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 1000) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 1000) * invScale);
 
-                bool isStationary = false;
-                if (DrawStationary.IsChecked == true)
-                    isStationary = true;
-
-                var newObject = new OrbiterObject(
-                    isStationary,
-                    new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y),
-                    newVelocity,
-                    DrawWeight.Value,
-                    DrawSize.Value);
-                _engine.AddNewObject(newObject);
+                _newObject.VelocityVector = newVelocity;
+                _engine.AddNewObject(_newObject);
 
                 SetupObjects();
             } else if (_isOffsetting)

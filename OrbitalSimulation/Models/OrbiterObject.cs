@@ -17,6 +17,11 @@ namespace OrbitalSimulation.Models
         public double Radius { get; set; } = 0;
         public bool IsNoclip { get; set; } = false;
 
+        public OrbiterObject()
+        {
+
+        }
+
         public OrbiterObject(OrbiterObject other)
         {
             ID = other.ID;
