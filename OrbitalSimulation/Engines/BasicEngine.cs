@@ -73,9 +73,11 @@ namespace OrbitalSimulation.Engines
             return nearest;
         }
 
-        public bool Update(double tickMultiplier)
+        public UpdateResult Update(double tickMultiplier)
         {
-            bool requireUIRefresh = false;
+            UpdateResult returnCode = UpdateResult.NothingChanged;
+            if (Objects.Count == 0)
+                return returnCode;
 
             // Calculate Movement
             foreach (var obja in Objects)
@@ -102,7 +104,12 @@ namespace OrbitalSimulation.Engines
 
                 obja.Location = new Point(obja.Location.X + newVelocity.X * tickMultiplier, obja.Location.Y + newVelocity.Y * tickMultiplier);
                 obja.VelocityVector = newVelocity;
+
+                returnCode = UpdateResult.ObjectsUpdated;
             }
+
+            if (returnCode == UpdateResult.NothingChanged)
+                return returnCode;
 
             // Calculate Collisions
             for (int i = 0; i < Objects.Count; i++)
@@ -115,13 +122,13 @@ namespace OrbitalSimulation.Engines
                         Objects.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
                     Objects.Add(newObject);
 
-                    requireUIRefresh = true;
+                    returnCode = UpdateResult.ObjectsAdded;
 
                     i = 0;
                 }
             }
 
-            return requireUIRefresh;
+            return returnCode;
         }
 
         private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)

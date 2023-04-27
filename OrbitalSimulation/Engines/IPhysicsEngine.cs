@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace OrbitalSimulation.Engines
 {
+    public enum UpdateResult { None, NothingChanged, ObjectsUpdated, ObjectsAdded }
     public interface IPhysicsEngine
     {
         public HashSet<OrbiterObject> Objects { get; set; }
@@ -17,6 +18,6 @@ namespace OrbitalSimulation.Engines
         public double GetOrbitalPeriod(OrbiterObject source);
         public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter);
         public OrbiterObject? GetNearestObject(OrbiterObject to);
-        public bool Update(double tickMultiplier);
+        public UpdateResult Update(double tickMultiplier);
     }
 }

@@ -3,6 +3,7 @@ using OrbitalSimulation.Models;
 using OrbitalSimulation.UserControls;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -50,23 +51,10 @@ namespace OrbitalSimulation
 
             DrawSize.Minimum = _minSize;
             DrawSize.Maximum = _maxSize;
-
-            ScaleSlider.Minimum = _minScale;
-            ScaleSlider.Maximum = _maxScale;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            var planet = new OrbiterObject(
-                true,
-                new Point(400, 200),
-                new Point(0, 0),
-                500000,
-                25);
-            _engine.AddNewObject(planet);
-
-            SetupObjects();
-
             _isLoaded = true;
         }
 
@@ -92,21 +80,43 @@ namespace OrbitalSimulation
 
             SetupObjects();
 
-            _run = true;
-            while (_run)
-            {
-                if (_engine.Update(SpeedSlider.Value))
-                    SetupObjects();
-                else
-                    foreach (var control in _visualObjects)
-                        control.Refresh(MainCanvas, _scale, _offset);
-
-                await Task.Delay((int)_refreshRate);
-            }
+            await RunSimulationTaskAsync();
 
             StartButton.IsEnabled = true;
             StopButton.IsEnabled = false;
             RestartButton.IsEnabled = true;
+        }
+
+        private async Task RunSimulationTaskAsync()
+        {
+            _run = true;
+            Stopwatch watch = new Stopwatch();
+            watch.Start();
+            int frames = 0;
+            while (_run)
+            {
+                var returnCode = _engine.Update(SpeedSlider.Value);
+                switch (returnCode)
+                {
+                    case UpdateResult.ObjectsUpdated:
+                        foreach (var control in _visualObjects)
+                            control.Refresh(MainCanvas, _scale, _offset);
+                        break;
+                    case UpdateResult.ObjectsAdded:
+                        SetupObjects();
+                        break;
+                }
+
+                await Task.Delay((int)_refreshRate);
+                frames++;
+                if (watch.ElapsedMilliseconds >= 1000)
+                {
+                    watch.Stop();
+                    FramerateLabel.Content = $"FPS: {frames}";
+                    watch.Restart();
+                    frames = 0;
+                }
+            }
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -268,7 +278,6 @@ namespace OrbitalSimulation
 
             OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
             ScaleLabel.Content = $"Scale: {_scale}x";
-            ScaleSlider.Value = _scale;
             SetupObjects();
         }
 
@@ -293,16 +302,6 @@ namespace OrbitalSimulation
             SpeedSliderLabel.Content = $"Speed: {Math.Round(SpeedSlider.Value, 0)}x";
             DrawWeightLabel.Content = $"Weight: {Math.Round(DrawWeight.Value, 0)}kg";
             DrawSizeLabel.Content = $"Size: {Math.Round(DrawSize.Value, 0)}";
-        }
-
-        private void ScaleSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isLoaded)
-            {
-                _scale = e.NewValue;
-                ScaleLabel.Content = $"Scale: {_scale}x";
-                SetupObjects();
-            }
         }
     }
 }

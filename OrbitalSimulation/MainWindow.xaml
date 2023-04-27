@@ -14,8 +14,8 @@
 
         <Canvas Background="Gray" x:Name="MainCanvas" Margin="5" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" ClipToBounds="True" MouseWheel="MainCanvas_MouseWheel"/>
         <StackPanel  HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5" Width="200">
+            <Label x:Name="FramerateLabel" Content="FPS: 0"/>
             <Label x:Name="ScaleLabel" Content="Scale: 1x" Margin="1"/>
-            <Slider x:Name="ScaleSlider" Value="0.00005" Maximum="0.0001" Minimum="0.0000000001" ValueChanged="ScaleSlider_ValueChanged"/>
             <Label x:Name="OffsetLabel" Content="Offset: (0,0)"/>
         </StackPanel>
 
