@@ -35,17 +35,24 @@ namespace OrbitalSimulation.Models
         public bool Equals(OrbiterObject? other)
         {
             return other is not null &&
-                   IsStationary == other.IsStationary &&
-                   EqualityComparer<Point>.Default.Equals(Location, other.Location) &&
-                   EqualityComparer<Point>.Default.Equals(VelocityVector, other.VelocityVector) &&
-                   KgMass == other.KgMass &&
-                   Radius == other.Radius &&
-                   IsNoclip == other.IsNoclip;
+                   ID == other.ID;
         }
 
         public override int GetHashCode()
         {
             return HashCode.Combine(ID);
         }
+
+        public static bool operator ==(OrbiterObject obj1, OrbiterObject obj2)
+        {
+            if (ReferenceEquals(obj1, obj2))
+                return true;
+            if (ReferenceEquals(obj1, null))
+                return false;
+            if (ReferenceEquals(obj2, null))
+                return false;
+            return obj1.Equals(obj2);
+        }
+        public static bool operator !=(OrbiterObject obj1, OrbiterObject obj2) => !(obj1 == obj2);
     }
 }

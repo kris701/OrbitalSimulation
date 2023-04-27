@@ -73,7 +73,7 @@ namespace OrbitalSimulation.Engines
             return nearest;
         }
 
-        public bool Update()
+        public bool Update(double tickMultiplier)
         {
             bool requireUIRefresh = false;
 
@@ -99,7 +99,8 @@ namespace OrbitalSimulation.Engines
                         }
                     }
                 }
-                obja.Location = new Point(obja.Location.X + newVelocity.X, obja.Location.Y + newVelocity.Y);
+
+                obja.Location = new Point(obja.Location.X + newVelocity.X * tickMultiplier, obja.Location.Y + newVelocity.Y * tickMultiplier);
                 obja.VelocityVector = newVelocity;
             }
 

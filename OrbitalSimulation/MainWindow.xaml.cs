@@ -23,6 +23,8 @@ namespace OrbitalSimulation
     {
         private bool _isLoaded = false;
 
+        private double _refreshRate = 16.66666;
+
         private double _scale = 0.00005;
         private double _minScale = 0.0000000001;
         private double _maxScale = 0.0001;
@@ -93,13 +95,13 @@ namespace OrbitalSimulation
             _run = true;
             while (_run)
             {
-                if (_engine.Update())
+                if (_engine.Update(SpeedSlider.Value))
                     SetupObjects();
                 else
                     foreach (var control in _visualObjects)
                         control.Refresh(MainCanvas, _scale, _offset);
 
-                await Task.Delay((int)SpeedSlider.Value);
+                await Task.Delay((int)_refreshRate);
             }
 
             StartButton.IsEnabled = true;
@@ -214,7 +216,7 @@ namespace OrbitalSimulation
         private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isLoaded)
-                SpeedSliderLabel.Content = $"Refresh Rate: {Math.Round(e.NewValue, 0)}ms";
+                SpeedSliderLabel.Content = $"Speed: {Math.Round(e.NewValue, 4)}x";
         }
 
         private void DrawWeight_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -288,7 +290,7 @@ namespace OrbitalSimulation
         {
             ScaleLabel.Content = $"Scale: {_scale}x";
             OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
-            SpeedSliderLabel.Content = $"Refresh Rate: {Math.Round(SpeedSlider.Value, 0)}ms";
+            SpeedSliderLabel.Content = $"Speed: {Math.Round(SpeedSlider.Value, 0)}x";
             DrawWeightLabel.Content = $"Weight: {Math.Round(DrawWeight.Value, 0)}kg";
             DrawSizeLabel.Content = $"Size: {Math.Round(DrawSize.Value, 0)}";
         }

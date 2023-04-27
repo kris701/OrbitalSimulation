@@ -17,6 +17,6 @@ namespace OrbitalSimulation.Engines
         public double GetOrbitalPeriod(OrbiterObject source);
         public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter);
         public OrbiterObject? GetNearestObject(OrbiterObject to);
-        public bool Update();
+        public bool Update(double tickMultiplier);
     }
 }
