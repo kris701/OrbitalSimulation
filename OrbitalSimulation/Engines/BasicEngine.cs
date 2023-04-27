@@ -58,16 +58,12 @@ namespace OrbitalSimulation.Engines
             }
 
             // Calculate Collisions
-            HashSet<OrbiterObject> shrapnellSet = new HashSet<OrbiterObject>();
             for (int i = 0; i < objects.Count; i++)
             {
                 HashSet<OrbiterObject> newCollidedObjects = GetCollisionSet(objects[i], objects);
                 if (newCollidedObjects.Count > 0)
                 {
                     var newObject = GetNewObjectFromSetOfObjects(newCollidedObjects);
-                    foreach (var shrapnell in GenerateShrapnell(newObject, newCollidedObjects))
-                        shrapnellSet.Add(shrapnell);
-
                     foreach (var obj in newCollidedObjects)
                         objects.Remove(obj);
                     objects.Add(newObject);
@@ -77,10 +73,6 @@ namespace OrbitalSimulation.Engines
                     i = 0;
                 }
             }
-
-            // Add shrapnell last
-            foreach (var shrapnell in shrapnellSet)
-                objects.Add(shrapnell);
 
             return requireUIRefresh;
         }
@@ -111,10 +103,10 @@ namespace OrbitalSimulation.Engines
             newLocation.X = newLocation.X / combinedMass;
             newLocation.Y = newLocation.Y / combinedMass;
 
-            // (Weighted) Combined area for finding the new radius
+            // Combined area for finding the new radius
             double combinedArea = 0;
             foreach (var obj in objects)
-                combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius) * (obj.KgMass / combinedMass);
+                combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius);
             double newRadius = CircleHelper.GetRadiusFromArea(combinedArea);
 
             return new OrbiterObject(
@@ -123,50 +115,6 @@ namespace OrbitalSimulation.Engines
                 combinedVelocity,
                 combinedMass,
                 newRadius);
-        }
-
-        private HashSet<OrbiterObject> GenerateShrapnell(OrbiterObject mainObject, HashSet<OrbiterObject> sourceObjects)
-        {
-            HashSet<OrbiterObject> shrapnellSet = new HashSet<OrbiterObject>();
-
-            mainObject.IsNoclip = true;
-
-            foreach (var obj in sourceObjects)
-            {
-                if (!obj.IsStationary)
-                {
-                    double energy = GetVelocityEnergy(obj.VelocityVector);
-                    if (energy <= mainObject.Radius * _penetrationFactor)
-                        continue;
-                    int shrapnellToMake = (int)energy;
-                    for (int i = 0; i < shrapnellToMake; i++)
-                    {
-                        if (mainObject.KgMass - 100 <= 100)
-                            break;
-                        double newMass = 100;
-
-                        var location = mainObject.Location;
-
-                        double xVelocityOffset = GetPseudoDoubleWithinRange(0.25, 1.25);
-                        double yVelocityOffset = GetPseudoDoubleWithinRange(0.25, 1.25);
-                        var velocity = new Point(
-                            obj.VelocityVector.X * xVelocityOffset,
-                            obj.VelocityVector.Y * yVelocityOffset);
-
-                        mainObject.KgMass -= newMass;
-
-                        shrapnellSet.Add(new OrbiterObject(
-                            false,
-                            location,
-                            velocity,
-                            newMass,
-                            _shrapnellSize,
-                            true));
-                    }
-                }
-            }
-
-            return shrapnellSet;
         }
 
         public double GetVelocityEnergy(Point velocity) => Math.Sqrt(Math.Pow(velocity.X, 2) + Math.Pow(velocity.Y, 2));
