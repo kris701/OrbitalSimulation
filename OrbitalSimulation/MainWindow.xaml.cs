@@ -174,7 +174,7 @@ namespace OrbitalSimulation
                 _line.Y2 = thisLocation.Y;
 
                 var invScale = 1 / _scale;
-                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 1000) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 1000) * invScale);
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 100) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 100) * invScale);
 
                 foreach (var point in _drawPrediction)
                     MainCanvas.Children.Remove(point);
@@ -231,7 +231,7 @@ namespace OrbitalSimulation
                 var thisLocation = e.GetPosition(MainCanvas);
 
                 var invScale = 1 / _scale;
-                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 1000) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 1000) * invScale);
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 100) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 100) * invScale);
 
                 _newObject.VelocityVector = newVelocity;
                 _engine.AddNewObject(_newObject);

@@ -81,5 +81,12 @@ namespace OrbitalSimulation.Models
             return obj1.Equals(obj2);
         }
         public static bool operator !=(OrbiterObject obj1, OrbiterObject obj2) => !(obj1 == obj2);
+
+        public double GetLinearDensityAtAltitude(double altitude)
+        {
+            var m = ((AtmTopLevelDensity - AtmSeaLevelDensity) / (AtmTopLevel - AtmSeaLevel));
+            var b = AtmSeaLevelDensity - (m * AtmSeaLevel);
+            return m * altitude + b;
+        }
     }
 }

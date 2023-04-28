@@ -3,6 +3,7 @@ using OrbitalSimulation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -145,8 +146,8 @@ namespace OrbitalSimulation.Engines
                             if (objb.HasAtmosphere)
                             {
                                 var drag = GetAtmosphericDrag(obj, objb);
-                                drag.X += force.X;
-                                drag.Y += force.Y;
+                                newVelocity.X += drag.X;
+                                newVelocity.Y += drag.Y;
                             }
                         }
                     }
@@ -255,18 +256,18 @@ namespace OrbitalSimulation.Engines
             var distance = PointHelper.Distance(obja.Location, objb.Location);
             if (distance > objb.AtmTopLevel)
                 return drag;
-            var densityAtAltitude = (objb.AtmTopLevel - distance) * (objb.AtmSeaLevelDensity - objb.AtmTopLevelDensity);
+            var densityAtAltitude = objb.GetLinearDensityAtAltitude(distance);
 
-            var dragForce = (1 * densityAtAltitude * Math.Pow(GetLengthOfVector(obja.VelocityVector), 2) * 1) / 2;
+            var velocity = GetLengthOfVector(obja.VelocityVector);
+            var area = CircleHelper.GetAreaOfRadius(obja.Radius);
+            var dragCoefficiency = 0.47;
+            var dragForce = (dragCoefficiency * area * 0.5 * densityAtAltitude * Math.Pow(velocity, 2));
+            double force = dragForce / obja.KgMass;
 
-            var dirX = Math.Cos(obja.VelocityVector.X) * dragForce;
-            var dirY = Math.Sin(obja.VelocityVector.Y) * dragForce;
+            var angle = Math.Atan(obja.VelocityVector.Y / obja.VelocityVector.X);
 
-            var invDirX = dirX - Math.PI;
-            var invDirY = dirY - Math.PI;
-
-            drag.X = invDirX;
-            drag.Y = invDirY;
+            drag.X = -(Math.Cos(angle) * force);
+            drag.Y = -(Math.Sin(angle) * force);
 
             return drag;
         }
