@@ -36,13 +36,6 @@
                 </StackPanel>
 
                 <StackPanel Background="LightGray" Margin="5">
-                    <Label x:Name="DrawWeightLabel" Content="Weight: 1000kg" VerticalAlignment="Center"/>
-                    <Slider x:Name="DrawWeight" Value="1000" ValueChanged="DrawWeight_ValueChanged" />
-                    <Label x:Name="DrawSizeLabel" Content="Size: 50" VerticalAlignment="Center"/>
-                    <Slider x:Name="DrawSize" Value="50" ValueChanged="DrawSize_ValueChanged"/>
-                </StackPanel>
-
-                <StackPanel Background="LightGray" Margin="5">
                     <Label Content="Draw Style:"/>
                     <ComboBox x:Name="DrawStyleCombobox" SelectedIndex="0">
                         <ComboBoxItem Content="Direct"/>
@@ -53,10 +46,12 @@
 
             <StackPanel Grid.Column="1">
                 <StackPanel Background="LightGray" Margin="5">
-                    <Label Content="Presets" HorizontalAlignment="Center"/>
+                    <Label Content="Planets and Moons" HorizontalAlignment="Center"/>
                     <Button x:Name="EarthPresetButton" Content="Earth" Click="EarthPresetButton_Click"/>
                     <Button x:Name="MoonPresetButton" Content="Moon" Click="MoonPresetButton_Click"/>
                     <Button x:Name="SunPresetButton" Content="Sun" Click="SunPresetButton_Click"/>
+                    <Label Content="Objects" HorizontalAlignment="Center"/>
+                    <Button x:Name="ISSPresetButton" Content="ISS" Click="ISSPresetButton_Click"/>
                 </StackPanel>
             </StackPanel>
 

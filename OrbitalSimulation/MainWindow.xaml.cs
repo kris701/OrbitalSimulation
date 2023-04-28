@@ -18,7 +18,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation
 {
@@ -30,13 +29,7 @@ namespace OrbitalSimulation
 
         private double _scale = 0.00005;
         private double _minScale = 0.0000000001;
-        private double _maxScale = 0.0001;
-
-        private double _minWeight = 1000;
-        private double _maxWeight = 1 * Math.Pow(10, 50);
-
-        private double _minSize = 10;
-        private double _maxSize = 1 * Math.Pow(10, 50);
+        private double _maxScale = 0.1;
 
         private Point _offset = new Point();
 
@@ -47,12 +40,6 @@ namespace OrbitalSimulation
         public MainWindow()
         {
             InitializeComponent();
-
-            DrawWeight.Minimum = _minWeight;
-            DrawWeight.Maximum = _maxWeight;
-
-            DrawSize.Minimum = _minSize;
-            DrawSize.Maximum = _maxSize;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -168,10 +155,7 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Add(_velocityLabel);
 
                 var invScale = 1 / _scale;
-                _newObject = new OrbiterObject();
                 _newObject.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
-                _newObject.KgMass = DrawWeight.Value;
-                _newObject.Radius = DrawSize.Value;
                 if (DrawStationary.IsChecked == true)
                     _newObject.IsStationary = true;
                 else
@@ -265,18 +249,6 @@ namespace OrbitalSimulation
                 SpeedSliderLabel.Content = $"Speed: {Math.Round(e.NewValue, 4)}x";
         }
 
-        private void DrawWeight_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isLoaded)
-                DrawWeightLabel.Content = $"Weight: {Math.Round(e.NewValue, 0)}kg";
-        }
-
-        private void DrawSize_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            if (_isLoaded)
-                DrawSizeLabel.Content = $"Size: {Math.Round(e.NewValue, 0)}";
-        }
-
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
             _engine.Objects.Clear();
@@ -298,7 +270,7 @@ namespace OrbitalSimulation
             startOffsetPoint.Y *= curInvScale;
 
             _scale += ((double)e.Delta / 100000000);
-            _scale = Math.Round(_scale, 9);
+            _scale = Math.Round(_scale, 15);
             if (_scale <= _minScale)
                 _scale = _minScale;
             if (_scale >= _maxScale)
@@ -319,35 +291,22 @@ namespace OrbitalSimulation
 
         private void EarthPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var presetObject = PresetBuilder.GetEarth();
-            DrawWeight.Value = presetObject.KgMass;
-            DrawSize.Value = presetObject.Radius;
-            UpdateAllControlLabels();
+            _newObject = PresetBuilder.GetEarth();
         }
 
         private void MoonPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var presetObject = PresetBuilder.GetMoon();
-            DrawWeight.Value = presetObject.KgMass;
-            DrawSize.Value = presetObject.Radius;
-            UpdateAllControlLabels();
+            _newObject = PresetBuilder.GetMoon();
         }
 
         private void SunPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            var presetObject = PresetBuilder.GetSun();
-            DrawWeight.Value = presetObject.KgMass;
-            DrawSize.Value = presetObject.Radius;
-            UpdateAllControlLabels();
+            _newObject = PresetBuilder.GetSun();
         }
 
-        private void UpdateAllControlLabels()
+        private void ISSPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            ScaleLabel.Content = $"Scale: {_scale}x";
-            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
-            SpeedSliderLabel.Content = $"Speed: {Math.Round(SpeedSlider.Value, 0)}x";
-            DrawWeightLabel.Content = $"Weight: {Math.Round(DrawWeight.Value, 0)}kg";
-            DrawSizeLabel.Content = $"Size: {Math.Round(DrawSize.Value, 0)}";
+            _newObject = PresetBuilder.GetISS();
         }
     }
 }

@@ -141,6 +141,13 @@ namespace OrbitalSimulation.Engines
                             var force = GetGravitationalConstantForce(obj, objb);
                             newVelocity.X += force.X;
                             newVelocity.Y += force.Y;
+
+                            if (objb.HasAtmosphere)
+                            {
+                                var drag = GetAtmosphericDrag(obj, objb);
+                                drag.X += force.X;
+                                drag.Y += force.Y;
+                            }
                         }
                     }
                 }
@@ -239,6 +246,29 @@ namespace OrbitalSimulation.Engines
             accelerationVector.Y = siny * force;
 
             return accelerationVector;
+        }
+
+        private Point GetAtmosphericDrag(OrbiterObject obja, OrbiterObject objb)
+        {
+            Point drag = new Point();
+
+            var distance = PointHelper.Distance(obja.Location, objb.Location);
+            if (distance > objb.AtmTopLevel)
+                return drag;
+            var densityAtAltitude = (objb.AtmTopLevel - distance) * (objb.AtmSeaLevelDensity - objb.AtmTopLevelDensity);
+
+            var dragForce = (1 * densityAtAltitude * Math.Pow(GetLengthOfVector(obja.VelocityVector), 2) * 1) / 2;
+
+            var dirX = Math.Cos(obja.VelocityVector.X) * dragForce;
+            var dirY = Math.Sin(obja.VelocityVector.Y) * dragForce;
+
+            var invDirX = dirX - Math.PI;
+            var invDirY = dirY - Math.PI;
+
+            drag.X = invDirX;
+            drag.Y = invDirY;
+
+            return drag;
         }
 
         public double GetLengthOfVector(Point vector) => Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2));

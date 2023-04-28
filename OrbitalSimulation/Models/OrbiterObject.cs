@@ -16,6 +16,11 @@ namespace OrbitalSimulation.Models
         public double KgMass { get; set; } = 0;
         public double Radius { get; set; } = 0;
         public bool IsNoclip { get; set; } = false;
+        public bool HasAtmosphere { get; set; } = false;
+        public double AtmSeaLevel { get; set; } = 0;
+        public double AtmSeaLevelDensity { get; set; } = 0;
+        public double AtmTopLevel { get; set; } = 0;
+        public double AtmTopLevelDensity { get; set; } = 0;
 
         public OrbiterObject()
         {
@@ -31,6 +36,11 @@ namespace OrbitalSimulation.Models
             KgMass = other.KgMass;
             Radius = other.Radius;
             IsNoclip = other.IsNoclip;
+            HasAtmosphere = other.HasAtmosphere;
+            AtmSeaLevel = other.AtmSeaLevel;
+            AtmSeaLevelDensity = other.AtmSeaLevelDensity;
+            AtmTopLevel = other.AtmTopLevel;
+            AtmTopLevelDensity = other.AtmTopLevelDensity;
         }
 
         public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius, bool isNoclip = false, int iD = -1)

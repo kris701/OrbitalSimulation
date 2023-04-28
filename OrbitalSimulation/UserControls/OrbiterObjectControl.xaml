@@ -8,6 +8,7 @@
              d:DesignHeight="200" d:DesignWidth="200" Width="2000" Height="2000" IsHitTestVisible="False">
     <Grid ClipToBounds="False">
         <Ellipse x:Name="VisualEllipse" Fill="Blue" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="false"/>
+        <Ellipse x:Name="VisualAtmEllipse" Fill="Blue" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="false" Opacity="0.5"/>
         <Label x:Name="VelocityLabel" Content="(0,0)" HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="false"/>
         <Line x:Name="VelocityLine" X1="0" Y1="0" X2="50" Y2="50" Stroke="Red" StrokeThickness="1" IsHitTestVisible="false"/>
     </Grid>

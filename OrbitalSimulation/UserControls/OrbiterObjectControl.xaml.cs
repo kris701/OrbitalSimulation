@@ -43,6 +43,11 @@ namespace OrbitalSimulation.UserControls
 
             VisualEllipse.Width = Item.Radius * 2 * scale;
             VisualEllipse.Height = Item.Radius * 2 * scale;
+            if (Item.HasAtmosphere)
+            {
+                VisualAtmEllipse.Width = Item.AtmTopLevel * 2 * scale;
+                VisualAtmEllipse.Height = Item.AtmTopLevel * 2 * scale;
+            }
 
             if (Item.IsStationary)
                 VisualEllipse.Fill = Brushes.Orange;
