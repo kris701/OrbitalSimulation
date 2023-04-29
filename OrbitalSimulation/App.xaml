@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:OrbitalSimulation"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="/Theme/Default.xaml" />
     </Application.Resources>
 </Application>

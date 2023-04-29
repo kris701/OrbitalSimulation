@@ -53,7 +53,7 @@ namespace OrbitalSimulation.UserControls
 
             VisualEllipse.Width = Item.Radius * 2 * scale;
             VisualEllipse.Height = Item.Radius * 2 * scale;
-            VelocityLabel.Margin = new Thickness(0, -(Item.Radius * 2 * scale) + VelocityLabel.ActualHeight, 0,0);
+            VelocityLabel.Margin = new Thickness(0, -(Item.Radius * 2 * scale) - VelocityLabel.ActualHeight, 0,0);
 
             if (Item.HasAtmosphere)
             {
@@ -110,7 +110,7 @@ namespace OrbitalSimulation.UserControls
             {
                 Width = 2,
                 Height = 2, 
-                Stroke = Brushes.Black,
+                Stroke = Brushes.White,
                 IsHitTestVisible = false,
                 Margin = new Thickness(((offset.X + Item.Location.X) * scale) - 1, (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - 1, 0, 0)
             };

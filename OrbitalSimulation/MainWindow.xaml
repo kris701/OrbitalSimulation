@@ -6,18 +6,18 @@
         xmlns:local="clr-namespace:OrbitalSimulation"
         xmlns:preset="clr-namespace:OrbitalSimulation.Presets"
         mc:Ignorable="d"
-        Title="Orbital Simulation" Height="850" Width="1000" Loaded="Window_Loaded" ResizeMode="NoResize">
+        Title="Orbital Simulation" Height="850" Width="1000" Loaded="Window_Loaded" ResizeMode="NoResize" Background="#721D2B40">
     <Grid x:Name="MainGrid">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="300"/>
         </Grid.RowDefinitions>
 
-        <Canvas Background="Gray" x:Name="MainCanvas" Margin="5" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" ClipToBounds="True" MouseWheel="MainCanvas_MouseWheel"/>
+        <Canvas Background="Black" x:Name="MainCanvas" Margin="5" MouseDown="MainCanvas_MouseDown" MouseUp="MainCanvas_MouseUp" MouseMove="MainCanvas_MouseMove" ClipToBounds="True" MouseWheel="MainCanvas_MouseWheel"/>
         <StackPanel  HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="5" Orientation="Horizontal">
-            <Label x:Name="FramerateLabel" Content="FPS: 0"/>
-            <Label x:Name="ScaleLabel" Content="Scale: 1x" Margin="1"/>
-            <Label x:Name="OffsetLabel" Content="Offset: (0,0)"/>
+            <Label x:Name="FramerateLabel" Content="FPS: 0" Style="{StaticResource StandartLabelStyle}"/>
+            <Label x:Name="ScaleLabel" Content="Scale: 1x" Style="{StaticResource StandartLabelStyle}"/>
+            <Label x:Name="OffsetLabel" Content="Offset: (0,0)" Style="{StaticResource StandartLabelStyle}"/>
         </StackPanel>
 
         <Grid x:Name="ControlGrid" Grid.Row="1">
@@ -27,37 +27,49 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0">
-                <StackPanel Background="LightGray" Margin="5">
-                    <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
-                    <Button x:Name="StopButton" Content="Stop" Click="StopButton_Click" IsEnabled="False"/>
-                    <Button x:Name="RestartButton" Content="Restart" Click="RestartButton_Click"/>
-                    <Label x:Name="SpeedSliderLabel" Content="Speed: 1x" VerticalAlignment="Center"/>
-                    <Slider x:Name="SpeedSlider" Value="0" Minimum="-5" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True" TickPlacement="Both" ValueChanged="SpeedSlider_ValueChanged"/>
-                </StackPanel>
+            <StackPanel Grid.Column="0" Margin="5" Background="#FF2B313C">
+                <Label Content="Simulation Controls" Style="{StaticResource StandartLabelStyle}"/>
+                <Button x:Name="StartButton" Content="Start" Margin="5" Style="{StaticResource StandartGreenButtonStyle}" Click="StartButton_Click"/>
+                <Button x:Name="StopButton" Content="Stop" Margin="5" Style="{StaticResource StandartExitButtonStyle}" Click="StopButton_Click" IsEnabled="False"/>
+                <Button x:Name="RestartButton" Content="Restart" Margin="5" Style="{StaticResource StandartExitButtonStyle}" Click="RestartButton_Click"/>
 
-                <StackPanel Background="LightGray" Margin="5">
-                    <Label Content="Draw Style:"/>
-                    <ComboBox x:Name="DrawStyleCombobox" SelectedIndex="0">
-                        <ComboBoxItem Content="Direct"/>
-                    </ComboBox>
-                    <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" VerticalAlignment="Center"/>
-                    <Label x:Name="DragMultiplierLabel" Content="Draw Multiplier: 100x"/>
-                    <Slider x:Name="DragMultiplier" Value="100" Minimum="1" Maximum="1000" TickFrequency="10" IsSnapToTickEnabled="True" TickPlacement="Both" ValueChanged="DragMultiplier_ValueChanged"/>
-                </StackPanel>
+                <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
+
+                <Label x:Name="SpeedSliderLabel" Content="Speed: 1x" Margin="5" Style="{StaticResource StandartLabelStyle}"/>
+                <Slider x:Name="SpeedSlider" Margin="5" Value="0" Minimum="-5" Maximum="5" TickFrequency="1" IsSnapToTickEnabled="True" TickPlacement="Both" ValueChanged="SpeedSlider_ValueChanged"/>
+
+                <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
+
             </StackPanel>
 
-            <StackPanel Grid.Column="1">
-                <StackPanel Background="LightGray" Margin="5">
-                    <Label Content="Planets and Moons" HorizontalAlignment="Center"/>
-                    <Button Content="Earth" Tag="{x:Static preset:BuilderOptions.Earth}" Click="SetPresetButton_Click"/>
-                    <Button Content="Moon" Tag="{x:Static preset:BuilderOptions.Moon}" Click="SetPresetButton_Click"/>
-                    <Button Content="Mars" Tag="{x:Static preset:BuilderOptions.Mars}" Click="SetPresetButton_Click"/>
-                    <Button Content="Venus" Tag="{x:Static preset:BuilderOptions.Venus}" Click="SetPresetButton_Click"/>
-                    <Button Content="Sun" Tag="{x:Static preset:BuilderOptions.Sun}" Click="SetPresetButton_Click"/>
-                    <Label Content="Objects" HorizontalAlignment="Center"/>
-                    <Button Content="ISS" Tag="{x:Static preset:BuilderOptions.ISS}" Click="SetPresetButton_Click"/>
-                </StackPanel>
+            <StackPanel Grid.Column="1" Margin="5" Background="#FF2B313C">
+                <Label Content="Draw Controls" Style="{StaticResource StandartLabelStyle}"/>
+
+                <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
+
+                <ComboBox x:Name="DrawStyleCombobox" Margin="5" SelectedIndex="0" Style="{StaticResource StandartComboboxStyle}">
+                    <ComboBoxItem Content="Direct"/>
+                </ComboBox>
+                <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" Margin="5" Style="{StaticResource StandartCheckBoxStyle}"/>
+
+                <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
+
+                <Label x:Name="DragMultiplierLabel" Content="Draw Multiplier: 100x" Margin="5" Style="{StaticResource StandartLabelStyle}"/>
+                <Slider x:Name="DragMultiplier" Margin="5" Value="100" Minimum="1" Maximum="1000" TickFrequency="10" IsSnapToTickEnabled="True" TickPlacement="Both" ValueChanged="DragMultiplier_ValueChanged"/>
+
+                <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
+
+            </StackPanel>
+
+            <StackPanel Grid.Column="2" Margin="5" Background="#FF2B313C">
+                <Label Content="Planets and Moons" Margin="5" Style="{StaticResource StandartLabelStyle}"/>
+                <Button Content="Earth" Margin="5" Tag="{x:Static preset:BuilderOptions.Earth}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Button Content="Moon" Margin="5" Tag="{x:Static preset:BuilderOptions.Moon}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Button Content="Mars" Margin="5" Tag="{x:Static preset:BuilderOptions.Mars}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Button Content="Venus" Margin="5" Tag="{x:Static preset:BuilderOptions.Venus}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Button Content="Sun" Margin="5" Tag="{x:Static preset:BuilderOptions.Sun}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Label Content="Objects" Margin="5" Style="{StaticResource StandartLabelStyle}"/>
+                <Button Content="ISS" Margin="5" Tag="{x:Static preset:BuilderOptions.ISS}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
             </StackPanel>
         </Grid>
     </Grid>
