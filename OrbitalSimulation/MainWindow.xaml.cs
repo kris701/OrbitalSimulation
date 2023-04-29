@@ -311,6 +311,7 @@ namespace OrbitalSimulation
             _engine.Bodies.Clear();
             _offset = new Point();
             _scale = 1;
+            MainCanvas.Children.Clear();
 
             ScaleLabel.Content = $"Scale: {_scale}x";
             OffsetLabel.Content = $"Offset: ({Math.Round(_offset.X, 2)},{Math.Round(_offset.Y, 2)})";

@@ -162,10 +162,9 @@ namespace OrbitalSimulation.Models
         }
         public static bool operator !=(OrbitalBody obj1, OrbitalBody obj2) => !(obj1 == obj2);
 
-        // de Pater and Lissauer 2010
         public double GetDensityAtAltitude(double distanceFromCenter)
         {
-            return AtmSeaLevelDensity * Math.Exp((-(distanceFromCenter - Radius) / AtmTopLevel));
+            return AtmSeaLevelDensity * Math.Pow((1 - ((distanceFromCenter - Radius) / (AtmTopLevel - Radius))), 2);
         }
     }
 }

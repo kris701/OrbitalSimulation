@@ -210,13 +210,16 @@ namespace OrbitalSimulation.Engines
 
             var velocity = dragBody.GetVelocity();
             var area = CircleHelper.GetAreaOfRadius(dragBody.Radius);
-            var dragCoefficiency = 0.47;
+            var dragCoefficiency = 0.25;
             var dragForce = -((double)1 / (double)2) * ((densityAtAltitude * dragCoefficiency * area) / dragBody.KgMass) * velocity;
 
             var angle = Math.Atan(dragBody.VelocityVector.Y / dragBody.VelocityVector.X);
 
+            if (-dragForce > velocity)
+                dragForce = -velocity;
+
             drag.X = (Math.Cos(angle) * dragForce);
-            drag.Y = (Math.Sin(angle) * dragForce);
+            drag.Y = (Math.Sin(angle) * dragForce);          
 
             return drag;
         }
