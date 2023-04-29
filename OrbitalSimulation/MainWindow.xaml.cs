@@ -27,6 +27,8 @@ namespace OrbitalSimulation
 
         private double _refreshRate = 16.66666;
 
+        private double _speedValue = 10;
+
         private double _scale = 1;
         private double _minScale = 0.00000001;
         private double _maxScale = 100;
@@ -96,7 +98,7 @@ namespace OrbitalSimulation
             int frames = 0;
             while (_run)
             {
-                var returnCode = _engine.Update(SpeedSlider.Value);
+                var returnCode = _engine.Update(_speedValue);
                 switch (returnCode)
                 {
                     case UpdateResult.ObjectsUpdated:
@@ -202,7 +204,7 @@ namespace OrbitalSimulation
                 var predictedPath = _engine.PredictPath(
                     _newBody,
                     100,
-                    MainCanvas.ActualHeight * invScale);
+                    MainCanvas.ActualHeight * invScale * 2);
 
                 var startPoint = predictedPath[0];
                 foreach(var point in predictedPath.Skip(1))
@@ -215,6 +217,8 @@ namespace OrbitalSimulation
                         Y2 = MainCanvas.ActualHeight - (_offset.Y + point.Y) * _scale,
                         StrokeThickness = 2,
                         Stroke = Brushes.Green,
+                        StrokeDashArray = new DoubleCollection() { 2 },
+                        StrokeLineJoin = PenLineJoin.Round,
                         IsHitTestVisible = false,
                     };
                     startPoint = point;
@@ -222,14 +226,14 @@ namespace OrbitalSimulation
                     MainCanvas.Children.Add(line);
                 }
 
-                _velocityLabel.Content = $"({newVelocity.X},{newVelocity.Y})";
+                _velocityLabel.Content = $"({Math.Round(newVelocity.X, 2)},{Math.Round(newVelocity.Y, 2)})";
             }
             else if (_isOffsetting)
             {
                 var thisLocation = e.GetPosition(MainCanvas);
                 var invScale = 1 / _scale;
                 _offset = new Point(_currentOffsetPoint.X - (_startOffsetPoint.X - thisLocation.X) * invScale, _currentOffsetPoint.Y + (_startOffsetPoint.Y - thisLocation.Y) * invScale);
-                OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
+                OffsetLabel.Content = $"Offset: ({Math.Round(_offset.X, 2)},{Math.Round(_offset.Y, 2)})";
                 SetupObjects();
             }
         }
@@ -265,7 +269,10 @@ namespace OrbitalSimulation
         private void SpeedSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isLoaded)
-                SpeedSliderLabel.Content = $"Speed: {Math.Round(e.NewValue, 4)}x";
+            {
+                _speedValue = Math.Round(Math.Pow(10, e.NewValue), 5);
+                SpeedSliderLabel.Content = $"Speed: {_speedValue}x";
+            }
         }
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
@@ -275,7 +282,7 @@ namespace OrbitalSimulation
             _scale = 1;
 
             ScaleLabel.Content = $"Scale: {_scale}x";
-            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
+            OffsetLabel.Content = $"Offset: ({Math.Round(_offset.X, 2)},{Math.Round(_offset.Y, 2)})";
 
             SetupObjects();
         }
@@ -319,22 +326,6 @@ namespace OrbitalSimulation
             OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
             ScaleLabel.Content = $"Scale: {_scale}x";
             SetupObjects();
-        }
-
-        private int GetAmountOfZeros(double value)
-        {
-            var str = value.ToString().Replace(",",".");
-            if (!str.Contains("."))
-                return 0;
-            str = str.Split('.')[1];
-            int count = 0;
-            for (int i = 0; i < str.Length; i++)
-            {
-                if (str[i] != '0')
-                    break;
-                count++;
-            }
-            return count;
         }
 
         private void SetPresetButton_Click(object sender, RoutedEventArgs e)
