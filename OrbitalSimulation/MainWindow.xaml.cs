@@ -289,7 +289,7 @@ namespace OrbitalSimulation
             startOffsetPoint.X *= curInvScale;
             startOffsetPoint.Y *= curInvScale;
 
-            _scale += ((double)e.Delta / 1000000);
+            _scale += ((double)e.Delta / 100000000);
             _scale = Math.Round(_scale, 15);
             if (_scale <= _minScale)
                 _scale = _minScale;
