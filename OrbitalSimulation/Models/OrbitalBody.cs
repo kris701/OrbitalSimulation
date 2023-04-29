@@ -20,6 +20,7 @@ namespace OrbitalSimulation.Models
         public bool HasAtmosphere { get; set; } = false;
         public double AtmSeaLevelDensity { get; set; } = 0;
         public double AtmTopLevel { get; set; } = 0;
+        public string Image { get; set; } = "";
 
         public OrbitalBody()
         {
@@ -51,17 +52,30 @@ namespace OrbitalSimulation.Models
             ID = iD;
         }
 
-        public OrbitalBody(HashSet<OrbitalBody> bodys, int newID = -1)
+        public OrbitalBody(HashSet<OrbitalBody> bodies, int newID = -1)
         {
-            IsStationary = IsAnyStationary(bodys);
+            IsStationary = IsAnyStationary(bodies);
             ID = newID;
 
+            // Largest object keeps its image
+            string largestImage = "";
+            double largestMass = 0;
+            foreach(var obj in bodies)
+            {
+                if (obj.KgMass > largestMass)
+                {
+                    largestMass = obj.KgMass;
+                    largestImage = obj.Image;
+                }
+            }
+            Image = largestImage;
+
             // Total mass
-            foreach (var obj in bodys)
+            foreach (var obj in bodies)
                 KgMass += obj.KgMass;
 
             // (Weighted) Combined velocity of all the objects
-            foreach (var obj in bodys)
+            foreach (var obj in bodies)
             {
                 VelocityVector = new Point(
                     VelocityVector.X + obj.VelocityVector.X * (obj.KgMass / KgMass),
@@ -71,7 +85,7 @@ namespace OrbitalSimulation.Models
             // (Weighted) Centroid position of all the objects.
             // https://en.wikipedia.org/wiki/Centroid#By_geometric_decomposition
             Point newLocation = new Point();
-            foreach (var obj in bodys)
+            foreach (var obj in bodies)
             {
                 newLocation.X += obj.Location.X * obj.KgMass;
                 newLocation.Y += obj.Location.Y * obj.KgMass;
@@ -82,21 +96,21 @@ namespace OrbitalSimulation.Models
 
             // Combined area for finding the new radius
             double combinedArea = 0;
-            foreach (var obj in bodys)
+            foreach (var obj in bodies)
                 combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius);
             Radius = CircleHelper.GetRadiusFromArea(combinedArea);
 
             // Combine atmosphere if any
-            if (IsAnyAtmospheric(bodys))
+            if (IsAnyAtmospheric(bodies))
             {
                 HasAtmosphere = true;
 
                 AtmTopLevel = Radius;
-                foreach (var obj in bodys)
+                foreach (var obj in bodies)
                     if (obj.HasAtmosphere)
                         AtmTopLevel += obj.AtmTopLevel - obj.Radius;
 
-                foreach (var obj in bodys)
+                foreach (var obj in bodies)
                     if (obj.HasAtmosphere)
                         AtmSeaLevelDensity += obj.AtmSeaLevelDensity;
             }

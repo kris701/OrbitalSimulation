@@ -32,6 +32,15 @@ namespace OrbitalSimulation.UserControls
             InitializeComponent();
             Item = item;
             Traces = new List<Ellipse>();
+
+            if (item.Image != "")
+            {
+                VisualEllipse.Fill = new ImageBrush()
+                {
+                    ImageSource = new BitmapImage(new Uri($"pack://application:,,,/Resources/{item.Image}")),
+                    Stretch = Stretch.Fill
+                };
+            }
         }
 
         public void Refresh(Canvas source, double scale, Point offset)
@@ -49,10 +58,13 @@ namespace OrbitalSimulation.UserControls
                 VisualAtmEllipse.Height = Item.AtmTopLevel * 2 * scale;
             }
 
-            if (Item.IsStationary)
-                VisualEllipse.Fill = Brushes.Orange;
-            else
-                VisualEllipse.Fill = Brushes.Blue;
+            if (Item.Image == "")
+            {
+                if (Item.IsStationary)
+                    VisualEllipse.Fill = Brushes.Orange;
+                else
+                    VisualEllipse.Fill = Brushes.Blue;
+            }
 
             if (!Item.IsStationary)
             {

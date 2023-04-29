@@ -50,11 +50,13 @@
             <StackPanel Grid.Column="1">
                 <StackPanel Background="LightGray" Margin="5">
                     <Label Content="Planets and Moons" HorizontalAlignment="Center"/>
-                    <Button x:Name="EarthPresetButton" Content="Earth" Tag="{x:Static preset:BuilderOptions.Earth}" Click="SetPresetButton_Click"/>
-                    <Button x:Name="MoonPresetButton" Content="Moon" Tag="{x:Static preset:BuilderOptions.Moon}" Click="SetPresetButton_Click"/>
-                    <Button x:Name="SunPresetButton" Content="Sun" Tag="{x:Static preset:BuilderOptions.Sun}" Click="SetPresetButton_Click"/>
+                    <Button Content="Earth" Tag="{x:Static preset:BuilderOptions.Earth}" Click="SetPresetButton_Click"/>
+                    <Button Content="Moon" Tag="{x:Static preset:BuilderOptions.Moon}" Click="SetPresetButton_Click"/>
+                    <Button Content="Mars" Tag="{x:Static preset:BuilderOptions.Mars}" Click="SetPresetButton_Click"/>
+                    <Button Content="Venus" Tag="{x:Static preset:BuilderOptions.Venus}" Click="SetPresetButton_Click"/>
+                    <Button Content="Sun" Tag="{x:Static preset:BuilderOptions.Sun}" Click="SetPresetButton_Click"/>
                     <Label Content="Objects" HorizontalAlignment="Center"/>
-                    <Button x:Name="ISSPresetButton" Content="ISS" Tag="{x:Static preset:BuilderOptions.ISS}" Click="SetPresetButton_Click"/>
+                    <Button Content="ISS" Tag="{x:Static preset:BuilderOptions.ISS}" Click="SetPresetButton_Click"/>
                 </StackPanel>
             </StackPanel>
 
