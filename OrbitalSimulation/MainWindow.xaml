@@ -32,7 +32,7 @@
                     <Button x:Name="StartButton" Content="Start" Click="StartButton_Click"/>
                     <Button x:Name="StopButton" Content="Stop" Click="StopButton_Click" IsEnabled="False"/>
                     <Button x:Name="RestartButton" Content="Restart" Click="RestartButton_Click"/>
-                    <Label x:Name="SpeedSliderLabel" Content="Speed: 1x" VerticalAlignment="Center"/>
+                    <Label x:Name="SpeedSliderLabel" Content="Speed: 10x" VerticalAlignment="Center"/>
                     <Slider x:Name="SpeedSlider" Value="10" Minimum="0.0001" Maximum="100" ValueChanged="SpeedSlider_ValueChanged"/>
                 </StackPanel>
 
@@ -42,6 +42,8 @@
                         <ComboBoxItem Content="Direct"/>
                     </ComboBox>
                     <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" VerticalAlignment="Center"/>
+                    <Label x:Name="DragMultiplierLabel" Content="Draw Multiplier: 100x"/>
+                    <Slider x:Name="DragMultiplier" Value="100" Minimum="1" Maximum="1000" ValueChanged="DragMultiplier_ValueChanged"/>
                 </StackPanel>
             </StackPanel>
 

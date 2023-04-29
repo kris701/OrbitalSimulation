@@ -23,11 +23,11 @@ namespace OrbitalSimulation.UserControls
     /// </summary>
     public partial class OrbiterObjectControl : UserControl
     {
-        private OrbiterObject Item { get; set; }
+        private OrbitalBody Item { get; set; }
         private List<Ellipse> Traces { get; set; }
         private int _maxTraces = 100;
 
-        public OrbiterObjectControl(OrbiterObject item)
+        public OrbiterObjectControl(OrbitalBody item)
         {
             InitializeComponent();
             Item = item;

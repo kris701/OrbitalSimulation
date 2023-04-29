@@ -19,9 +19,9 @@ namespace OrbitalSimulation.Presets
 
     public static class PresetBuilder
     {
-        public static OrbiterObject GetObjectFromID(BuilderOptions option)
+        public static OrbitalBody GetPresetBodyFromID(BuilderOptions id)
         {
-            switch (option)
+            switch (id)
             {
                 case BuilderOptions.Earth: return GetEarth();
                 case BuilderOptions.Moon: return GetMoon();
@@ -31,9 +31,9 @@ namespace OrbitalSimulation.Presets
             throw new Exception("Builder option not found!");
         }
 
-        public static OrbiterObject GetSun()
+        public static OrbitalBody GetSun()
         {
-            return new OrbiterObject(
+            return new OrbitalBody(
                 true,
                 new Point(),
                 new Point(),
@@ -41,9 +41,9 @@ namespace OrbitalSimulation.Presets
                 696340000);
         }
 
-        public static OrbiterObject GetEarth()
+        public static OrbitalBody GetEarth()
         {
-            var body = new OrbiterObject()
+            var body = new OrbitalBody()
             {
                 KgMass = 5.972 * Math.Pow(10, 24),
                 Radius = 6371000,
@@ -54,9 +54,9 @@ namespace OrbitalSimulation.Presets
             return body;
         }
 
-        public static OrbiterObject GetMoon()
+        public static OrbitalBody GetMoon()
         {
-            var body = new OrbiterObject()
+            var body = new OrbitalBody()
             {
                 KgMass = 7.34767309 * Math.Pow(10, 22),
                 Radius = 1737400,
@@ -65,9 +65,9 @@ namespace OrbitalSimulation.Presets
             return body;
         }
 
-        public static OrbiterObject GetISS()
+        public static OrbitalBody GetISS()
         {
-            var body = new OrbiterObject()
+            var body = new OrbitalBody()
             {
                 KgMass = 450000,
                 Radius = 109,

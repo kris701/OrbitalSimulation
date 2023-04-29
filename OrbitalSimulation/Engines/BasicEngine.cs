@@ -12,23 +12,24 @@ namespace OrbitalSimulation.Engines
 {
     public class BasicEngine : IPhysicsEngine
     {
-        public int _currentID = 0;
-        public HashSet<OrbiterObject> Objects { get; set; } = new HashSet<OrbiterObject>();
+        public HashSet<OrbitalBody> Bodies { get; set; } = new HashSet<OrbitalBody>();
+
+        private int _currentID = 0;
 
         private readonly double GravitationalConstant = 6.674 * Math.Pow(10, -11);
 
-        public void AddNewObject(OrbiterObject obj)
+        public void AddNewBody(OrbitalBody body)
         {
-            obj.ID = _currentID++;
-            Objects.Add(obj);
+            body.ID = _currentID++;
+            Bodies.Add(body);
         }
 
-        public Point GetOrbitalVector(OrbiterObject source, OrbiterObject orbiter)
+        public Point GetOrbitalVector(OrbitalBody satelliteBody, OrbitalBody anchorBody)
         {
             Point orbitalVelocity = new Point();
-            double angle = Math.Atan2((orbiter.Location.Y - source.Location.Y), (orbiter.Location.X - source.Location.X));
-            double distance = PointHelper.Distance(source.Location, orbiter.Location);
-            double force = Math.Sqrt((GravitationalConstant * (source.KgMass * orbiter.KgMass)) / distance);
+            double angle = Math.Atan2((satelliteBody.Location.Y - anchorBody.Location.Y), (satelliteBody.Location.X - anchorBody.Location.X));
+            double distance = PointHelper.Distance(anchorBody.Location, satelliteBody.Location);
+            double force = Math.Sqrt((GravitationalConstant * (anchorBody.KgMass * satelliteBody.KgMass)) / distance);
 
             var cosx = Math.Cos(angle);
             var siny = Math.Sin(angle);
@@ -39,21 +40,16 @@ namespace OrbitalSimulation.Engines
             return orbitalVelocity;
         }
 
-        public double GetOrbitalPeriod(OrbiterObject source)
+        public OrbitalBody? GetNearestBody(OrbitalBody to)
         {
-            return (2 * Math.PI * Math.Pow(source.Radius, 3/2)) / Math.Sqrt(GravitationalConstant * source.KgMass);
-        }
-
-        public OrbiterObject? GetNearestObject(OrbiterObject to)
-        {
-            if (Objects.Count == 0)
+            if (Bodies.Count == 0)
                 return null;
-            if (Objects.Count == 1)
+            if (Bodies.Count == 1)
                 return to;
 
-            OrbiterObject? nearest = null;
+            OrbitalBody? nearest = null;
             double nearestDistance = double.MaxValue;
-            foreach(var obj in Objects)
+            foreach(var obj in Bodies)
             {
                 if (obj != to)
                 {
@@ -71,7 +67,7 @@ namespace OrbitalSimulation.Engines
         public UpdateResult Update(double tickMultiplier)
         {
             UpdateResult returnCode = UpdateResult.NothingChanged;
-            if (Objects.Count == 0)
+            if (Bodies.Count == 0)
                 return returnCode;
 
             if (tickMultiplier <= 1)
@@ -93,7 +89,7 @@ namespace OrbitalSimulation.Engines
 
         private UpdateResult UpdateLocations(UpdateResult returnCode, double tickMultiplier)
         {
-            foreach (var obj in Objects)
+            foreach (var obj in Bodies)
             {
                 if (obj.IsStationary)
                     continue;
@@ -109,15 +105,15 @@ namespace OrbitalSimulation.Engines
 
         private UpdateResult CollisionCheck(UpdateResult returnCode)
         {
-            for (int i = 0; i < Objects.Count; i++)
+            for (int i = 0; i < Bodies.Count; i++)
             {
-                HashSet<OrbiterObject> newCollidedObjects = GetCollisionSet(Objects.ElementAt(i), Objects);
+                HashSet<OrbitalBody> newCollidedObjects = GetCollisionSet(Bodies.ElementAt(i), Bodies);
                 if (newCollidedObjects.Count > 0)
                 {
-                    var newObject = GetNewObjectFromSetOfObjects(newCollidedObjects);
+                    var newObject = new OrbitalBody(newCollidedObjects, _currentID++);
                     foreach (var obj in newCollidedObjects)
-                        Objects.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
-                    Objects.Add(newObject);
+                        Bodies.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
+                    Bodies.Add(newObject);
 
                     if (returnCode < UpdateResult.ObjectsAdded)
                         returnCode = UpdateResult.ObjectsAdded;
@@ -128,24 +124,24 @@ namespace OrbitalSimulation.Engines
             return returnCode;
         }
 
-        public Point CalculateNextLocation(OrbiterObject obj)
+        public Point CalculateNextLocation(OrbitalBody body)
         {
-            var newVelocity = new Point(obj.VelocityVector.X, obj.VelocityVector.Y);
-            if (!obj.IsNoclip)
+            var newVelocity = new Point(body.VelocityVector.X, body.VelocityVector.Y);
+            if (!body.IsNoclip)
             {
-                foreach (var objb in Objects)
+                foreach (var otherBody in Bodies)
                 {
-                    if (objb != obj)
+                    if (otherBody != body)
                     {
-                        if (!objb.IsNoclip)
+                        if (!otherBody.IsNoclip)
                         {
-                            var force = GetGravitationalConstantForce(obj, objb);
+                            var force = GetGravitationalConstantForce(body, otherBody);
                             newVelocity.X += force.X;
                             newVelocity.Y += force.Y;
 
-                            if (objb.HasAtmosphere)
+                            if (otherBody.HasAtmosphere)
                             {
-                                var drag = GetAtmosphericDrag(obj, objb);
+                                var drag = GetAtmosphericDrag(body, otherBody);
                                 newVelocity.X += drag.X;
                                 newVelocity.Y += drag.Y;
                             }
@@ -156,110 +152,39 @@ namespace OrbitalSimulation.Engines
             return newVelocity;
         }
 
-        private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)
+        private HashSet<OrbitalBody> GetCollisionSet(OrbitalBody body, HashSet<OrbitalBody> bodies)
         {
-            var newObject = new OrbiterObject()
-            {
-                IsStationary = IsAnyStationary(objects),
-                ID = _currentID++
-            };
-
-            // Total mass
-            foreach (var obj in objects)
-                newObject.KgMass += obj.KgMass;
-
-            // (Weighted) Combined velocity of all the objects
-            foreach (var obj in objects)
-            {
-                newObject.VelocityVector = new Point(
-                    newObject.VelocityVector.X + obj.VelocityVector.X * (obj.KgMass / newObject.KgMass),
-                    newObject.VelocityVector.Y + obj.VelocityVector.Y* (obj.KgMass / newObject.KgMass));
-            }
-
-            // (Weighted) Centroid position of all the objects.
-            // https://en.wikipedia.org/wiki/Centroid#By_geometric_decomposition
-            Point newLocation = new Point();
-            foreach (var obj in objects)
-            {
-                newLocation.X += obj.Location.X * obj.KgMass;
-                newLocation.Y += obj.Location.Y * obj.KgMass;
-            }
-            newObject.Location = new Point(
-                newLocation.X / newObject.KgMass,
-                newLocation.Y / newObject.KgMass);
-
-            // Combined area for finding the new radius
-            double combinedArea = 0;
-            foreach (var obj in objects)
-                combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius);
-            newObject.Radius = CircleHelper.GetRadiusFromArea(combinedArea);
-
-            if (IsAnyAtmospheric(objects))
-            {
-                newObject.HasAtmosphere = true;
-
-                newObject.AtmTopLevel = newObject.Radius;
-                foreach (var obj in objects)
-                    if (obj.HasAtmosphere)
-                        newObject.AtmTopLevel += obj.AtmTopLevel - obj.Radius;
-
-                foreach (var obj in objects)
-                    if (obj.HasAtmosphere)
-                        newObject.AtmSeaLevelDensity += obj.AtmSeaLevelDensity;
-            }
-
-            return newObject;
-        }
-
-        private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, HashSet<OrbiterObject> objects)
-        {
-            HashSet<OrbiterObject> collidedObjects = new HashSet<OrbiterObject>();
+            HashSet<OrbitalBody> collidedBodies = new HashSet<OrbitalBody>();
             bool isFreeFromCollisions = true;
-            foreach (var obj in objects) 
+            foreach (var otherBody in bodies) 
             {
-                if (obj != self) 
+                if (otherBody != body) 
                 {
-                    if (PointHelper.Distance(obj.Location, self.Location) <= (obj.Radius + self.Radius))
+                    if (PointHelper.Distance(otherBody.Location, body.Location) <= (otherBody.Radius + body.Radius))
                     {
-                        if (!obj.IsNoclip && !self.IsNoclip)
+                        if (!otherBody.IsNoclip && !body.IsNoclip)
                         {
-                            collidedObjects.Add(obj);
-                            collidedObjects.Add(self);
+                            collidedBodies.Add(otherBody);
+                            collidedBodies.Add(body);
                         }
-                        else if (self.IsNoclip)
+                        else if (body.IsNoclip)
                             isFreeFromCollisions = false;
                     }
                 }
             }
             if (isFreeFromCollisions)
-                self.IsNoclip = false;
-            return collidedObjects;
+                body.IsNoclip = false;
+            return collidedBodies;
         }
 
-        private bool IsAnyStationary(HashSet<OrbiterObject> objects)
-        {
-            foreach (var obj in objects)
-                if (obj.IsStationary)
-                    return true;
-            return false;
-        }
-
-        private bool IsAnyAtmospheric(HashSet<OrbiterObject> objects)
-        {
-            foreach (var obj in objects)
-                if (obj.HasAtmosphere)
-                    return true;
-            return false;
-        }
-
-        private Point GetGravitationalConstantForce(OrbiterObject obja, OrbiterObject objb)
+        private Point GetGravitationalConstantForce(OrbitalBody body, OrbitalBody anchorBody)
         {
             Point accelerationVector = new Point();
 
-            double distance = PointHelper.Distance(obja.Location, objb.Location);
-            double constant = ((GravitationalConstant * obja.KgMass * objb.KgMass) / Math.Pow(distance,2));
-            double force = constant / obja.KgMass;
-            double angle = Math.Atan2((objb.Location.Y - obja.Location.Y), (objb.Location.X - obja.Location.X));
+            double distance = PointHelper.Distance(body.Location, anchorBody.Location);
+            double constant = ((GravitationalConstant * body.KgMass * anchorBody.KgMass) / Math.Pow(distance,2));
+            double force = constant / body.KgMass;
+            double angle = Math.Atan2((anchorBody.Location.Y - body.Location.Y), (anchorBody.Location.X - body.Location.X));
 
             var cosx = Math.Cos(angle);
             var siny = Math.Sin(angle);
@@ -270,21 +195,22 @@ namespace OrbitalSimulation.Engines
             return accelerationVector;
         }
 
-        private Point GetAtmosphericDrag(OrbiterObject obja, OrbiterObject objb)
+        // https://farside.ph.utexas.edu/teaching/celestial/Celestial/node94.html
+        private Point GetAtmosphericDrag(OrbitalBody dragBody, OrbitalBody anchorBody)
         {
             Point drag = new Point();
 
-            var distance = PointHelper.Distance(obja.Location, objb.Location);
-            if (distance > objb.AtmTopLevel)
+            var distance = PointHelper.Distance(dragBody.Location, anchorBody.Location);
+            if (distance > anchorBody.AtmTopLevel)
                 return drag;
-            var densityAtAltitude = objb.GetDensityAtAltitude(distance);
+            var densityAtAltitude = anchorBody.GetDensityAtAltitude(distance);
 
-            var velocity = GetLengthOfVector(obja.VelocityVector);
-            var area = CircleHelper.GetAreaOfRadius(obja.Radius);
+            var velocity = GetLengthOfVector(dragBody.VelocityVector);
+            var area = CircleHelper.GetAreaOfRadius(dragBody.Radius);
             var dragCoefficiency = 0.47;
-            var dragForce = -((double)1 / (double)2) * ((densityAtAltitude * dragCoefficiency * area) / obja.KgMass) * velocity;
+            var dragForce = -((double)1 / (double)2) * ((densityAtAltitude * dragCoefficiency * area) / dragBody.KgMass) * velocity;
 
-            var angle = Math.Atan(obja.VelocityVector.Y / obja.VelocityVector.X);
+            var angle = Math.Atan(dragBody.VelocityVector.Y / dragBody.VelocityVector.X);
 
             drag.X = (Math.Cos(angle) * dragForce);
             drag.Y = (Math.Sin(angle) * dragForce);
@@ -294,10 +220,10 @@ namespace OrbitalSimulation.Engines
 
         public double GetLengthOfVector(Point vector) => Math.Sqrt(Math.Pow(vector.X, 2) + Math.Pow(vector.Y, 2));
 
-        public List<Point> PredictPath(OrbiterObject obj, int maxPathPoints, double maxPathLength)
+        public List<Point> PredictPath(OrbitalBody body, int maxPathPoints, double maxPathLength)
         {
             List<Point> returnPoints = new List<Point>();
-            OrbiterObject tempObject = new OrbiterObject(obj);
+            OrbitalBody tempObject = new OrbitalBody(body);
             double currentLength = 0;
             int current = 0;
             while (currentLength < maxPathLength && returnPoints.Count < maxPathPoints)

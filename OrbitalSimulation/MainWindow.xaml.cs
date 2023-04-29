@@ -38,6 +38,18 @@ namespace OrbitalSimulation
         private IPhysicsEngine _engine = new BasicEngine();
         private List<OrbiterObjectControl> _visualObjects = new List<OrbiterObjectControl>();
 
+        private bool _isOffsetting = false;
+        private Point _startOffsetPoint = new Point();
+        private Point _currentOffsetPoint = new Point();
+        private bool _isDrawing = false;
+        private Point _startDrawPoint = new Point();
+        private Line _line = new Line();
+        private Ellipse _ghostDraw = new Ellipse();
+        private Label _velocityLabel = new Label();
+        private List<Line> _drawPrediction = new List<Line>();
+        private BuilderOptions _targetOption = BuilderOptions.None;
+        private OrbitalBody _newBody = new OrbitalBody();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -51,7 +63,7 @@ namespace OrbitalSimulation
         private void SetupObjects()
         {
             _visualObjects = new List<OrbiterObjectControl>();
-            foreach (var obj in _engine.Objects)
+            foreach (var obj in _engine.Bodies)
                 _visualObjects.Add(new OrbiterObjectControl(obj));
 
             MainCanvas.Children.Clear();
@@ -114,17 +126,6 @@ namespace OrbitalSimulation
             _run = false;
         }
 
-        private bool _isOffsetting = false;
-        private Point _startOffsetPoint = new Point();
-        private Point _currentOffsetPoint = new Point();
-        private bool _isDrawing = false;
-        private Point _startDrawPoint = new Point();
-        private Line _line = new Line();
-        private Ellipse _ghostDraw = new Ellipse();
-        private Label _velocityLabel = new Label();
-        private List<Line> _drawPrediction = new List<Line>();
-        private BuilderOptions _targetOption = BuilderOptions.None;
-        private OrbiterObject _newObject = new OrbiterObject();
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
             if (e.RightButton == MouseButtonState.Pressed && _isDrawing)
@@ -144,12 +145,12 @@ namespace OrbitalSimulation
                 _startDrawPoint = e.GetPosition(MainCanvas);
 
                 var invScale = 1 / _scale;
-                _newObject = PresetBuilder.GetObjectFromID(_targetOption);
-                _newObject.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
+                _newBody = PresetBuilder.GetPresetBodyFromID(_targetOption);
+                _newBody.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
                 if (DrawStationary.IsChecked == true)
-                    _newObject.IsStationary = true;
+                    _newBody.IsStationary = true;
                 else
-                    _newObject.IsStationary = false;
+                    _newBody.IsStationary = false;
 
                 _line = new Line()
                 {
@@ -166,11 +167,11 @@ namespace OrbitalSimulation
                 MainCanvas.Children.Add(_velocityLabel);
                 _ghostDraw = new Ellipse()
                 {
-                    Width = _newObject.Radius * 2 * _scale,
-                    Height = _newObject.Radius * 2 * _scale,
+                    Width = _newBody.Radius * 2 * _scale,
+                    Height = _newBody.Radius * 2 * _scale,
                     Margin = new Thickness(
-                        ((_offset.X + _newObject.Location.X) * _scale) - ((_newObject.Radius * 2 * _scale) / 2),
-                        (MainCanvas.ActualHeight - (_offset.Y + _newObject.Location.Y) * _scale) - ((_newObject.Radius * 2 * _scale) / 2), 
+                        ((_offset.X + _newBody.Location.X) * _scale) - ((_newBody.Radius * 2 * _scale) / 2),
+                        (MainCanvas.ActualHeight - (_offset.Y + _newBody.Location.Y) * _scale) - ((_newBody.Radius * 2 * _scale) / 2), 
                         0,0),
                     Opacity = 0.25,
                     Fill = Brushes.DarkGray
@@ -190,16 +191,17 @@ namespace OrbitalSimulation
                 _line.Y2 = thisLocation.Y;
 
                 var invScale = 1 / _scale;
-                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 100) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 100) * invScale);
+                var multiplier = Math.Round(DragMultiplier.Value, 0);
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / multiplier) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / multiplier) * invScale);
 
                 foreach (var point in _drawPrediction)
                     MainCanvas.Children.Remove(point);
                 _drawPrediction.Clear();
 
-                _newObject.VelocityVector = newVelocity;
+                _newBody.VelocityVector = newVelocity;
 
                 var predictedPath = _engine.PredictPath(
-                    _newObject,
+                    _newBody,
                     100,
                     MainCanvas.ActualHeight * invScale);
 
@@ -248,10 +250,11 @@ namespace OrbitalSimulation
                 var thisLocation = e.GetPosition(MainCanvas);
 
                 var invScale = 1 / _scale;
-                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / 100) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / 100) * invScale);
+                var multiplier = Math.Round(DragMultiplier.Value, 0);
+                var newVelocity = new Point(((thisLocation.X - _startDrawPoint.X) / multiplier) * invScale, (-(thisLocation.Y - _startDrawPoint.Y) / multiplier) * invScale);
 
-                _newObject.VelocityVector = newVelocity;
-                _engine.AddNewObject(_newObject);
+                _newBody.VelocityVector = newVelocity;
+                _engine.AddNewBody(_newBody);
 
                 SetupObjects();
             } else if (_isOffsetting)
@@ -268,7 +271,7 @@ namespace OrbitalSimulation
 
         private void RestartButton_Click(object sender, RoutedEventArgs e)
         {
-            _engine.Objects.Clear();
+            _engine.Bodies.Clear();
             _offset = new Point();
             _scale = 0.00005;
 
@@ -311,6 +314,12 @@ namespace OrbitalSimulation
             if (sender is Button button)
                 if (button.Tag is BuilderOptions option)
                     _targetOption = option;
+        }
+
+        private void DragMultiplier_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            if (_isLoaded)
+                DragMultiplierLabel.Content = $"Draw Multiplier: {Math.Round(e.NewValue, 0)}x";
         }
     }
 }
