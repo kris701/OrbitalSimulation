@@ -25,4 +25,10 @@
     <Resource Include="Resources\venus.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="UserControls\ExplosionControl.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
 </Project>

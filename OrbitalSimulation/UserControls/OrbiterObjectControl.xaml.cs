@@ -24,7 +24,7 @@ namespace OrbitalSimulation.UserControls
     /// </summary>
     public partial class OrbiterObjectControl : UserControl
     {
-        private OrbitalBody Item { get; set; }
+        public OrbitalBody Item { get; set; }
         private List<Ellipse> Traces { get; set; }
         private int _maxTraces = 100;
 
@@ -117,6 +117,13 @@ namespace OrbitalSimulation.UserControls
 
             Traces.Add(ellipse);    
             source.Children.Add(ellipse);
+        }
+
+        public void Cleanup(Canvas source)
+        {
+            foreach (var trace in Traces)
+                source.Children.Remove(trace);
+            Traces.Clear();
         }
     }
 }

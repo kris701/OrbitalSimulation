@@ -7,11 +7,16 @@ using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using static OrbitalSimulation.Engines.IPhysicsEngine;
 
 namespace OrbitalSimulation.Engines
 {
     public class BasicEngine : IPhysicsEngine
     {
+        public event CollisioEventHandler? CollisionOccured;
+        public event BodyDeletedHandler? BodyDeleted;
+        public event BodyAddedHandler? BodyAdded;
+
         public HashSet<OrbitalBody> Bodies { get; set; } = new HashSet<OrbitalBody>();
 
         private int _currentID = 0;
@@ -64,30 +69,27 @@ namespace OrbitalSimulation.Engines
             return nearest;
         }
 
-        public UpdateResult Update(double tickMultiplier)
+        public void Update(double tickMultiplier)
         {
-            UpdateResult returnCode = UpdateResult.NothingChanged;
             if (Bodies.Count == 0)
-                return returnCode;
+                return;
 
             if (tickMultiplier <= 1)
             {
-                returnCode = UpdateLocations(returnCode, tickMultiplier);
-                return CollisionCheck(returnCode);
+                UpdateLocations(tickMultiplier);
+                CollisionCheck();
             }
             else
             {
                 for (int i = 0; i < (int)tickMultiplier; i++)
                 {
-                    returnCode = UpdateLocations(returnCode, 1);
-                    returnCode = CollisionCheck(returnCode);
+                    UpdateLocations(1);
+                    CollisionCheck();
                 }
             }
-
-            return returnCode;
         }
 
-        private UpdateResult UpdateLocations(UpdateResult returnCode, double tickMultiplier)
+        private void UpdateLocations(double tickMultiplier)
         {
             foreach (var obj in Bodies)
             {
@@ -96,32 +98,33 @@ namespace OrbitalSimulation.Engines
                 var newVelocity = CalculateNextLocation(obj);
                 obj.Location = new Point(obj.Location.X + newVelocity.X * tickMultiplier, obj.Location.Y + newVelocity.Y * tickMultiplier);
                 obj.VelocityVector = newVelocity;
-
-                if (returnCode < UpdateResult.ObjectsUpdated)
-                    returnCode = UpdateResult.ObjectsUpdated;
             }
-            return returnCode;
         }
 
-        private UpdateResult CollisionCheck(UpdateResult returnCode)
+        private void CollisionCheck()
         {
             for (int i = 0; i < Bodies.Count; i++)
             {
                 HashSet<OrbitalBody> newCollidedObjects = GetCollisionSet(Bodies.ElementAt(i), Bodies);
                 if (newCollidedObjects.Count > 0)
                 {
+                    if (CollisionOccured != null)
+                        CollisionOccured.Invoke(newCollidedObjects);
+
                     var newObject = new OrbitalBody(newCollidedObjects, _currentID++);
                     foreach (var obj in newCollidedObjects)
+                    {
                         Bodies.RemoveWhere(x => x.GetHashCode() == obj.GetHashCode());
+                        if (BodyDeleted != null)
+                            BodyDeleted.Invoke(obj);
+                    }
                     Bodies.Add(newObject);
-
-                    if (returnCode < UpdateResult.ObjectsAdded)
-                        returnCode = UpdateResult.ObjectsAdded;
+                    if (BodyAdded != null)
+                        BodyAdded.Invoke(newObject);
 
                     i = 0;
                 }
             }
-            return returnCode;
         }
 
         public Point CalculateNextLocation(OrbitalBody body)

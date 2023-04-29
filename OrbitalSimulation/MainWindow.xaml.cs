@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation
 {
@@ -27,7 +28,7 @@ namespace OrbitalSimulation
 
         private double _refreshRate = 16.66666;
 
-        private double _speedValue = 10;
+        private double _speedValue = 1;
 
         private double _scale = 1;
         private double _minScale = 0.00000001;
@@ -38,6 +39,7 @@ namespace OrbitalSimulation
         private bool _run = false;
         private IPhysicsEngine _engine = new BasicEngine();
         private List<OrbiterObjectControl> _visualObjects = new List<OrbiterObjectControl>();
+        private List<ExplosionControl> _visualExplosions = new List<ExplosionControl>();
 
         private bool _isOffsetting = false;
         private Point _startOffsetPoint = new Point();
@@ -58,6 +60,9 @@ namespace OrbitalSimulation
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            _engine.CollisionOccured += AddExplosion;
+            _engine.BodyDeleted += DeleteBody;
+            _engine.BodyAdded += AddBody;
             _isLoaded = true;
         }
 
@@ -69,6 +74,8 @@ namespace OrbitalSimulation
 
             MainCanvas.Children.Clear();
             foreach (var control in _visualObjects)
+                MainCanvas.Children.Add(control);
+            foreach (var control in _visualExplosions)
                 MainCanvas.Children.Add(control);
 
             foreach (var control in _visualObjects)
@@ -98,17 +105,11 @@ namespace OrbitalSimulation
             int frames = 0;
             while (_run)
             {
-                var returnCode = _engine.Update(_speedValue);
-                switch (returnCode)
-                {
-                    case UpdateResult.ObjectsUpdated:
-                        foreach (var control in _visualObjects)
-                            control.Refresh(MainCanvas, _scale, _offset);
-                        break;
-                    case UpdateResult.ObjectsAdded:
-                        SetupObjects();
-                        break;
-                }
+                _engine.Update(_speedValue);
+                foreach (var control in _visualObjects)
+                    control.Refresh(MainCanvas, _scale, _offset);
+                foreach (var control in _visualExplosions)
+                    control.Refresh(MainCanvas, _scale, _offset);
 
                 await Task.Delay((int)_refreshRate);
                 frames++;
@@ -120,6 +121,26 @@ namespace OrbitalSimulation
                     frames = 0;
                 }
             }
+        }
+
+        private void AddExplosion(HashSet<OrbitalBody> collidedBodies)
+        {
+            _visualExplosions.Add(new ExplosionControl(collidedBodies));
+        }
+
+        private void AddBody(OrbitalBody body)
+        {
+            var visualObject = new OrbiterObjectControl(body);
+            MainCanvas.Children.Add(visualObject);
+            _visualObjects.Add(visualObject);
+        }
+
+        private void DeleteBody(OrbitalBody body)
+        {
+            var visualObject = _visualObjects.Single(x => x.Item.ID == body.ID);
+            visualObject.Cleanup(MainCanvas);
+            MainCanvas.Children.Remove(visualObject);
+            _visualObjects.Remove(visualObject);
         }
 
         private void StopButton_Click(object sender, RoutedEventArgs e)
@@ -323,7 +344,7 @@ namespace OrbitalSimulation
 
             _offset = new Point(_offset.X - (startOffsetPoint.X - newOffsetPoint.X), _offset.Y + (startOffsetPoint.Y - newOffsetPoint.Y));
 
-            OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
+            OffsetLabel.Content = $"Offset: ({Math.Round(_offset.X, 2)},{Math.Round(_offset.Y, 2)})";
             ScaleLabel.Content = $"Scale: {_scale}x";
             SetupObjects();
         }
