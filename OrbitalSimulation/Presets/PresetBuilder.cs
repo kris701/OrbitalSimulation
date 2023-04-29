@@ -8,8 +8,29 @@ using System.Windows;
 
 namespace OrbitalSimulation.Presets
 {
+    public enum BuilderOptions
+    {
+        None,
+        // Planetary
+        Earth, Moon, Sun,
+        // Other
+        ISS
+    }
+
     public static class PresetBuilder
     {
+        public static OrbiterObject GetObjectFromID(BuilderOptions option)
+        {
+            switch (option)
+            {
+                case BuilderOptions.Earth: return GetEarth();
+                case BuilderOptions.Moon: return GetMoon();
+                case BuilderOptions.Sun: return GetSun();
+                case BuilderOptions.ISS: return GetISS();
+            }
+            throw new Exception("Builder option not found!");
+        }
+
         public static OrbiterObject GetSun()
         {
             return new OrbiterObject(

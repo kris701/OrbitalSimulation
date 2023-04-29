@@ -18,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation
 {
@@ -119,8 +120,10 @@ namespace OrbitalSimulation
         private bool _isDrawing = false;
         private Point _startDrawPoint = new Point();
         private Line _line = new Line();
+        private Ellipse _ghostDraw = new Ellipse();
         private Label _velocityLabel = new Label();
         private List<Line> _drawPrediction = new List<Line>();
+        private BuilderOptions _targetOption = BuilderOptions.None;
         private OrbiterObject _newObject = new OrbiterObject();
         private void MainCanvas_MouseDown(object sender, MouseButtonEventArgs e)
         {
@@ -140,6 +143,14 @@ namespace OrbitalSimulation
             {
                 _startDrawPoint = e.GetPosition(MainCanvas);
 
+                var invScale = 1 / _scale;
+                _newObject = PresetBuilder.GetObjectFromID(_targetOption);
+                _newObject.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
+                if (DrawStationary.IsChecked == true)
+                    _newObject.IsStationary = true;
+                else
+                    _newObject.IsStationary = false;
+
                 _line = new Line()
                 {
                     Stroke = Brushes.Red,
@@ -153,13 +164,18 @@ namespace OrbitalSimulation
                     Margin = new Thickness(_startDrawPoint.X, _startDrawPoint.Y, 0, 0)
                 };
                 MainCanvas.Children.Add(_velocityLabel);
-
-                var invScale = 1 / _scale;
-                _newObject.Location = new Point(((_startDrawPoint.X) * invScale) - _offset.X, ((MainCanvas.ActualHeight - _startDrawPoint.Y) * invScale) - _offset.Y);
-                if (DrawStationary.IsChecked == true)
-                    _newObject.IsStationary = true;
-                else
-                    _newObject.IsStationary = false;
+                _ghostDraw = new Ellipse()
+                {
+                    Width = _newObject.Radius * 2 * _scale,
+                    Height = _newObject.Radius * 2 * _scale,
+                    Margin = new Thickness(
+                        ((_offset.X + _newObject.Location.X) * _scale) - ((_newObject.Radius * 2 * _scale) / 2),
+                        (MainCanvas.ActualHeight - (_offset.Y + _newObject.Location.Y) * _scale) - ((_newObject.Radius * 2 * _scale) / 2), 
+                        0,0),
+                    Opacity = 0.25,
+                    Fill = Brushes.DarkGray
+                };
+                MainCanvas.Children.Add(_ghostDraw);
 
                 _isDrawing = true;
             }
@@ -224,6 +240,7 @@ namespace OrbitalSimulation
                 _isDrawing = false;
                 MainCanvas.Children.Remove(_line);
                 MainCanvas.Children.Remove(_velocityLabel);
+                MainCanvas.Children.Remove(_ghostDraw);
                 foreach (var point in _drawPrediction)
                     MainCanvas.Children.Remove(point);
                 _drawPrediction.Clear();
@@ -289,24 +306,11 @@ namespace OrbitalSimulation
             SetupObjects();
         }
 
-        private void EarthPresetButton_Click(object sender, RoutedEventArgs e)
+        private void SetPresetButton_Click(object sender, RoutedEventArgs e)
         {
-            _newObject = PresetBuilder.GetEarth();
-        }
-
-        private void MoonPresetButton_Click(object sender, RoutedEventArgs e)
-        {
-            _newObject = PresetBuilder.GetMoon();
-        }
-
-        private void SunPresetButton_Click(object sender, RoutedEventArgs e)
-        {
-            _newObject = PresetBuilder.GetSun();
-        }
-
-        private void ISSPresetButton_Click(object sender, RoutedEventArgs e)
-        {
-            _newObject = PresetBuilder.GetISS();
+            if (sender is Button button)
+                if (button.Tag is BuilderOptions option)
+                    _targetOption = option;
         }
     }
 }
