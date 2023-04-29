@@ -132,6 +132,8 @@ namespace OrbitalSimulation.Models
             return false;
         }
 
+        public double GetVelocity() => Math.Sqrt(Math.Pow(VelocityVector.X, 2) + Math.Pow(VelocityVector.Y, 2));
+
         public override bool Equals(object? obj)
         {
             return Equals(obj as OrbitalBody);

@@ -205,7 +205,7 @@ namespace OrbitalSimulation.Engines
                 return drag;
             var densityAtAltitude = anchorBody.GetDensityAtAltitude(distance);
 
-            var velocity = GetLengthOfVector(dragBody.VelocityVector);
+            var velocity = dragBody.GetVelocity();
             var area = CircleHelper.GetAreaOfRadius(dragBody.Radius);
             var dragCoefficiency = 0.47;
             var dragForce = -((double)1 / (double)2) * ((densityAtAltitude * dragCoefficiency * area) / dragBody.KgMass) * velocity;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,6 +67,16 @@ namespace OrbitalSimulation.UserControls
                     VisualEllipse.Fill = Brushes.Orange;
                 else
                     VisualEllipse.Fill = Brushes.Blue;
+            }
+            else
+            {
+                if (Item.GetVelocity() != 0)
+                {
+                    var angle = -Math.Atan(Item.VelocityVector.Y / Item.VelocityVector.X) * (180 / Math.PI);
+                    VisualEllipse.RenderTransform = new RotateTransform(angle, Item.Radius * scale, Item.Radius * scale);
+                }
+                else
+                    VisualEllipse.RenderTransform = new RotateTransform(0);
             }
 
             if (!Item.IsStationary)

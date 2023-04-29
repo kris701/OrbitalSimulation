@@ -33,7 +33,7 @@
                     <Button x:Name="StopButton" Content="Stop" Click="StopButton_Click" IsEnabled="False"/>
                     <Button x:Name="RestartButton" Content="Restart" Click="RestartButton_Click"/>
                     <Label x:Name="SpeedSliderLabel" Content="Speed: 10x" VerticalAlignment="Center"/>
-                    <Slider x:Name="SpeedSlider" Value="10" Minimum="0.0001" Maximum="100" ValueChanged="SpeedSlider_ValueChanged"/>
+                    <Slider x:Name="SpeedSlider" Value="10" Minimum="0.0001" Maximum="1000" ValueChanged="SpeedSlider_ValueChanged"/>
                 </StackPanel>
 
                 <StackPanel Background="LightGray" Margin="5">

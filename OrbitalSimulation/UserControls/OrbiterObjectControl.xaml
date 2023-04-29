@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:OrbitalSimulation.UserControls"
              mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="200" Width="2000" Height="2000" IsHitTestVisible="False">
+             d:DesignHeight="200" d:DesignWidth="200" Width="200000" Height="200000" IsHitTestVisible="False">
     <Grid ClipToBounds="False">
         <Ellipse x:Name="VisualAtmEllipse" Fill="Blue" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="false" Opacity="0.5"/>
         <Ellipse x:Name="VisualEllipse" Fill="Blue" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="false"/>
