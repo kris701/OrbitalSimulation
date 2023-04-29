@@ -108,8 +108,15 @@ namespace OrbitalSimulation
                 _engine.Update(_speedValue);
                 foreach (var control in _visualObjects)
                     control.Refresh(MainCanvas, _scale, _offset);
-                foreach (var control in _visualExplosions)
-                    control.Refresh(MainCanvas, _scale, _offset);
+                for (int i = 0; i < _visualExplosions.Count; i++)
+                {
+                    if (_visualExplosions[i].Refresh(MainCanvas, _scale, _offset))
+                    {
+                        MainCanvas.Children.Remove(_visualExplosions[i]);
+                        _visualExplosions.RemoveAt(i);
+                        i--;
+                    }    
+                }
 
                 await Task.Delay((int)_refreshRate);
                 frames++;
@@ -125,7 +132,10 @@ namespace OrbitalSimulation
 
         private void AddExplosion(HashSet<OrbitalBody> collidedBodies)
         {
-            _visualExplosions.Add(new ExplosionControl(collidedBodies));
+            var visualObject = new ExplosionControl(collidedBodies);
+            Canvas.SetZIndex(visualObject, 99999);
+            MainCanvas.Children.Add(visualObject);
+            _visualExplosions.Add(visualObject);
         }
 
         private void AddBody(OrbitalBody body)

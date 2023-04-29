@@ -17,7 +17,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation.UserControls
 {
@@ -34,6 +33,7 @@ namespace OrbitalSimulation.UserControls
         Random _rnd = new Random();
         Point _location = new Point();
         double _size = 0;
+        int _rotation = 0;
 
         public ExplosionControl(HashSet<OrbitalBody> collidedBodies)
         {
@@ -64,16 +64,19 @@ namespace OrbitalSimulation.UserControls
 
         public bool Refresh(Canvas source, double scale, Point offset)
         {
+            double sizeScale = 1 - ((double)_lifeTimeTicks / (double)_targetLifeTimeTicks);
+
             this.Margin = new Thickness(((offset.X + _location.X) * scale) - (this.Width / 2), (source.ActualHeight - (offset.Y + _location.Y) * scale) - (this.Height / 2), 0, 0);
-            MainCanvas.Width = _size * 2 * scale;
-            MainCanvas.Height = _size * 2 * scale;
+            MainCanvas.Width = _size * 2 * scale * sizeScale;
+            MainCanvas.Height = _size * 2 * scale * sizeScale;
+            MainCanvas.RenderTransform = new RotateTransform(_rotation, _size * scale * sizeScale, _size * scale * sizeScale);
 
             _lifeTimeTicks++;
             if (_lifeTimeTicks > _targetLifeTimeTicks)
                 return true;
 
             if (_lifeTimeTicks % 10 == 0)
-                this.RenderTransform = new RotateTransform(_rnd.Next(0,360));
+                _rotation = _rnd.Next(0, 360);
 
             return false;
         }

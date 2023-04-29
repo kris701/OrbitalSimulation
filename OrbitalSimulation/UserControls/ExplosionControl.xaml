@@ -6,5 +6,9 @@
              xmlns:local="clr-namespace:OrbitalSimulation.UserControls"
              mc:Ignorable="d" 
              d:DesignHeight="200" d:DesignWidth="200" Width="200000" Height="200000" IsHitTestVisible="False">
-    <Canvas x:Name="MainCanvas"/>
+    <Canvas x:Name="MainCanvas">
+        <Canvas.Background>
+            <ImageBrush ImageSource="/Resources/explosion.png"/>
+        </Canvas.Background>
+    </Canvas>
 </UserControl>
