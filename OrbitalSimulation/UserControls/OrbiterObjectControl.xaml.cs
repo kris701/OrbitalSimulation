@@ -1,4 +1,5 @@
-﻿using OrbitalSimulation.Models;
+﻿using OrbitalSimulation.Helpers;
+using OrbitalSimulation.Models;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +27,9 @@ namespace OrbitalSimulation.UserControls
     {
         public OrbitalBody Item { get; set; }
         private List<Ellipse> Traces { get; set; }
-        private int _maxTraces = 100;
+        private int _maxTraces = 50;
+        private double _traceDistance = 10;
+        private Point _lastTrace = new Point();
 
         public OrbiterObjectControl(OrbitalBody item)
         {
@@ -49,7 +52,14 @@ namespace OrbitalSimulation.UserControls
             this.Margin = new Thickness(((offset.X + Item.Location.X) * scale) - (this.Width / 2), (source.ActualHeight - (offset.Y + Item.Location.Y) * scale) - (this.Height / 2), 0, 0);
 
             if (!Item.IsStationary)
-                AddTrace(source, scale, offset);
+            {
+                double invScale = 1 / scale;
+                if (PointHelper.Distance(_lastTrace, Item.Location) > _traceDistance * invScale)
+                {
+                    AddTrace(source, scale, offset);
+                    _lastTrace = Item.Location;
+                }
+            }
 
             VisualEllipse.Width = Item.Radius * 2 * scale;
             VisualEllipse.Height = Item.Radius * 2 * scale;
