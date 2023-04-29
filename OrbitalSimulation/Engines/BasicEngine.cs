@@ -158,17 +158,22 @@ namespace OrbitalSimulation.Engines
 
         private OrbiterObject GetNewObjectFromSetOfObjects(HashSet<OrbiterObject> objects)
         {
+            var newObject = new OrbiterObject()
+            {
+                IsStationary = IsAnyStationary(objects),
+                ID = _currentID++
+            };
+
             // Total mass
-            double combinedMass = 0;
             foreach (var obj in objects)
-                combinedMass += obj.KgMass;
+                newObject.KgMass += obj.KgMass;
 
             // (Weighted) Combined velocity of all the objects
-            Point combinedVelocity = new Point();
             foreach (var obj in objects)
             {
-                combinedVelocity.X += obj.VelocityVector.X * (obj.KgMass / combinedMass);
-                combinedVelocity.Y += obj.VelocityVector.Y * (obj.KgMass / combinedMass);
+                newObject.VelocityVector = new Point(
+                    newObject.VelocityVector.X + obj.VelocityVector.X * (obj.KgMass / newObject.KgMass),
+                    newObject.VelocityVector.Y + obj.VelocityVector.Y* (obj.KgMass / newObject.KgMass));
             }
 
             // (Weighted) Centroid position of all the objects.
@@ -179,23 +184,31 @@ namespace OrbitalSimulation.Engines
                 newLocation.X += obj.Location.X * obj.KgMass;
                 newLocation.Y += obj.Location.Y * obj.KgMass;
             }
-            newLocation.X = newLocation.X / combinedMass;
-            newLocation.Y = newLocation.Y / combinedMass;
+            newObject.Location = new Point(
+                newLocation.X / newObject.KgMass,
+                newLocation.Y / newObject.KgMass);
 
             // Combined area for finding the new radius
             double combinedArea = 0;
             foreach (var obj in objects)
                 combinedArea += CircleHelper.GetAreaOfRadius(obj.Radius);
-            double newRadius = CircleHelper.GetRadiusFromArea(combinedArea);
+            newObject.Radius = CircleHelper.GetRadiusFromArea(combinedArea);
 
-            return new OrbiterObject(
-                IsAnyStationary(objects),
-                newLocation,
-                combinedVelocity,
-                combinedMass,
-                newRadius,
-                false,
-                _currentID++);
+            if (IsAnyAtmospheric(objects))
+            {
+                newObject.HasAtmosphere = true;
+
+                newObject.AtmTopLevel = newObject.Radius;
+                foreach (var obj in objects)
+                    if (obj.HasAtmosphere)
+                        newObject.AtmTopLevel += obj.AtmTopLevel - obj.Radius;
+
+                foreach (var obj in objects)
+                    if (obj.HasAtmosphere)
+                        newObject.AtmSeaLevelDensity += obj.AtmSeaLevelDensity;
+            }
+
+            return newObject;
         }
 
         private HashSet<OrbiterObject> GetCollisionSet(OrbiterObject self, HashSet<OrbiterObject> objects)
@@ -231,6 +244,14 @@ namespace OrbitalSimulation.Engines
             return false;
         }
 
+        private bool IsAnyAtmospheric(HashSet<OrbiterObject> objects)
+        {
+            foreach (var obj in objects)
+                if (obj.HasAtmosphere)
+                    return true;
+            return false;
+        }
+
         private Point GetGravitationalConstantForce(OrbiterObject obja, OrbiterObject objb)
         {
             Point accelerationVector = new Point();
@@ -256,18 +277,17 @@ namespace OrbitalSimulation.Engines
             var distance = PointHelper.Distance(obja.Location, objb.Location);
             if (distance > objb.AtmTopLevel)
                 return drag;
-            var densityAtAltitude = objb.GetLinearDensityAtAltitude(distance);
+            var densityAtAltitude = objb.GetDensityAtAltitude(distance);
 
             var velocity = GetLengthOfVector(obja.VelocityVector);
             var area = CircleHelper.GetAreaOfRadius(obja.Radius);
             var dragCoefficiency = 0.47;
-            var dragForce = (dragCoefficiency * area * 0.5 * densityAtAltitude * Math.Pow(velocity, 2));
-            double force = dragForce / obja.KgMass;
+            var dragForce = -((double)1 / (double)2) * ((densityAtAltitude * dragCoefficiency * area) / obja.KgMass) * velocity;
 
             var angle = Math.Atan(obja.VelocityVector.Y / obja.VelocityVector.X);
 
-            drag.X = -(Math.Cos(angle) * force);
-            drag.Y = -(Math.Sin(angle) * force);
+            drag.X = (Math.Cos(angle) * dragForce);
+            drag.Y = (Math.Sin(angle) * dragForce);
 
             return drag;
         }

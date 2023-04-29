@@ -48,10 +48,8 @@ namespace OrbitalSimulation.Presets
                 KgMass = 5.972 * Math.Pow(10, 24),
                 Radius = 6371000,
                 HasAtmosphere = true,
-                AtmSeaLevel = 6371000,
                 AtmSeaLevelDensity = 1.2250,
                 AtmTopLevel = 6371000 + 100000,
-                AtmTopLevelDensity = 0.0000005
             };
             return body;
         }

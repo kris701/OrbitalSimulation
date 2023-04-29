@@ -17,10 +17,8 @@ namespace OrbitalSimulation.Models
         public double Radius { get; set; } = 0;
         public bool IsNoclip { get; set; } = false;
         public bool HasAtmosphere { get; set; } = false;
-        public double AtmSeaLevel { get; set; } = 0;
         public double AtmSeaLevelDensity { get; set; } = 0;
         public double AtmTopLevel { get; set; } = 0;
-        public double AtmTopLevelDensity { get; set; } = 0;
 
         public OrbiterObject()
         {
@@ -37,10 +35,8 @@ namespace OrbitalSimulation.Models
             Radius = other.Radius;
             IsNoclip = other.IsNoclip;
             HasAtmosphere = other.HasAtmosphere;
-            AtmSeaLevel = other.AtmSeaLevel;
             AtmSeaLevelDensity = other.AtmSeaLevelDensity;
             AtmTopLevel = other.AtmTopLevel;
-            AtmTopLevelDensity = other.AtmTopLevelDensity;
         }
 
         public OrbiterObject(bool isStationary, Point location, Point velocityVector, double kgMass, double radius, bool isNoclip = false, int iD = -1)
@@ -82,11 +78,10 @@ namespace OrbitalSimulation.Models
         }
         public static bool operator !=(OrbiterObject obj1, OrbiterObject obj2) => !(obj1 == obj2);
 
-        public double GetLinearDensityAtAltitude(double altitude)
+        // de Pater and Lissauer 2010
+        public double GetDensityAtAltitude(double distanceFromCenter)
         {
-            var m = ((AtmTopLevelDensity - AtmSeaLevelDensity) / (AtmTopLevel - AtmSeaLevel));
-            var b = AtmSeaLevelDensity - (m * AtmSeaLevel);
-            return m * altitude + b;
+            return AtmSeaLevelDensity * Math.Exp((-(distanceFromCenter - Radius) / AtmTopLevel));
         }
     }
 }
