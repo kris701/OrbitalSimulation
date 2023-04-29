@@ -52,6 +52,8 @@ namespace OrbitalSimulation.UserControls
 
             VisualEllipse.Width = Item.Radius * 2 * scale;
             VisualEllipse.Height = Item.Radius * 2 * scale;
+            VelocityLabel.Margin = new Thickness(0, -(Item.Radius * 2 * scale) + VelocityLabel.ActualHeight, 0,0);
+
             if (Item.HasAtmosphere)
             {
                 VisualAtmEllipse.Width = Item.AtmTopLevel * 2 * scale;

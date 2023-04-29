@@ -18,7 +18,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace OrbitalSimulation
 {
@@ -28,9 +27,9 @@ namespace OrbitalSimulation
 
         private double _refreshRate = 16.66666;
 
-        private double _scale = 0.00005;
-        private double _minScale = 0.0000000001;
-        private double _maxScale = 0.1;
+        private double _scale = 1;
+        private double _minScale = 0.00000001;
+        private double _maxScale = 100;
 
         private Point _offset = new Point();
 
@@ -273,7 +272,7 @@ namespace OrbitalSimulation
         {
             _engine.Bodies.Clear();
             _offset = new Point();
-            _scale = 0.00005;
+            _scale = 1;
 
             ScaleLabel.Content = $"Scale: {_scale}x";
             OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
@@ -288,8 +287,21 @@ namespace OrbitalSimulation
             startOffsetPoint.Y -= MainCanvas.ActualHeight;
             startOffsetPoint.X *= curInvScale;
             startOffsetPoint.Y *= curInvScale;
+            bool isModified = (Keyboard.GetKeyStates(Key.LeftShift) == KeyStates.Down) || Keyboard.GetKeyStates(Key.RightShift) == KeyStates.Down;
 
-            _scale += ((double)e.Delta / 100000000);
+            if (e.Delta > 0)
+            {
+                _scale += _scale / 10;
+                if (isModified)
+                    _scale += _scale / 10;
+            }
+            else
+            {
+                _scale -= _scale / 10;
+                if (isModified)
+                    _scale -= _scale / 10;
+            }
+
             _scale = Math.Round(_scale, 15);
             if (_scale <= _minScale)
                 _scale = _minScale;
@@ -307,6 +319,22 @@ namespace OrbitalSimulation
             OffsetLabel.Content = $"Offset: ({_offset.X},{_offset.Y})";
             ScaleLabel.Content = $"Scale: {_scale}x";
             SetupObjects();
+        }
+
+        private int GetAmountOfZeros(double value)
+        {
+            var str = value.ToString().Replace(",",".");
+            if (!str.Contains("."))
+                return 0;
+            str = str.Split('.')[1];
+            int count = 0;
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] != '0')
+                    break;
+                count++;
+            }
+            return count;
         }
 
         private void SetPresetButton_Click(object sender, RoutedEventArgs e)
