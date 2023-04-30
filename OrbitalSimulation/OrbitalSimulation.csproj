@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\cat.png" />
     <None Remove="Resources\earth.png" />
     <None Remove="Resources\explosion.png" />
     <None Remove="Resources\iss.png" />
@@ -18,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\cat.png" />
     <Resource Include="Resources\earth.png" />
     <Resource Include="Resources\explosion.png" />
     <Resource Include="Resources\iss.png" />

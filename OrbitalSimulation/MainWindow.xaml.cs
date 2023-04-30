@@ -311,6 +311,10 @@ namespace OrbitalSimulation
             _engine.Bodies.Clear();
             _offset = new Point();
             _scale = 1;
+
+            _visualObjects.Clear();
+            _visualExplosions.Clear();
+
             MainCanvas.Children.Clear();
 
             ScaleLabel.Content = $"Scale: {_scale}x";

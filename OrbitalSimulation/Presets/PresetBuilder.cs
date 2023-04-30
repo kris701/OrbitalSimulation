@@ -14,7 +14,7 @@ namespace OrbitalSimulation.Presets
         // Planetary
         Earth, Moon, Mars, Venus, Sun,
         // Other
-        ISS
+        ISS, Cat
     }
 
     public static class PresetBuilder
@@ -29,6 +29,7 @@ namespace OrbitalSimulation.Presets
                 case BuilderOptions.Mars: return GetMars();
                 case BuilderOptions.Venus: return GetVenus();
                 case BuilderOptions.ISS: return GetISS();
+                case BuilderOptions.Cat: return GetCat();
             }
             throw new Exception("Builder option not found!");
         }
@@ -105,6 +106,18 @@ namespace OrbitalSimulation.Presets
                 Image = "iss.png",
                 KgMass = 450000,
                 Radius = 109,
+                HasAtmosphere = false
+            };
+            return body;
+        }
+
+        public static OrbitalBody GetCat()
+        {
+            var body = new OrbitalBody()
+            {
+                Image = "cat.png",
+                KgMass = 5,
+                Radius = 1,
                 HasAtmosphere = false
             };
             return body;

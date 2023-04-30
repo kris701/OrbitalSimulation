@@ -70,6 +70,7 @@
                 <Button Content="Sun" Margin="5" Tag="{x:Static preset:BuilderOptions.Sun}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
                 <Label Content="Objects" Margin="5" Style="{StaticResource StandartLabelStyle}"/>
                 <Button Content="ISS" Margin="5" Tag="{x:Static preset:BuilderOptions.ISS}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
+                <Button Content="Cat" Margin="5" Tag="{x:Static preset:BuilderOptions.Cat}" Style="{StaticResource StandartButtonStyle}" Click="SetPresetButton_Click"/>
             </StackPanel>
         </Grid>
     </Grid>
