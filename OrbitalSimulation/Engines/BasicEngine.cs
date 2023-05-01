@@ -29,49 +29,6 @@ namespace OrbitalSimulation.Engines
             Bodies.Add(body);
         }
 
-        public Point GetOrbitalVector(OrbitalBody satelliteBody, OrbitalBody anchorBody)
-        {
-            Point orbitalVelocity = new Point();
-            double angle = Math.Atan2((satelliteBody.Location.Y - anchorBody.Location.Y), (satelliteBody.Location.X - anchorBody.Location.X));
-            double distance = PointHelper.Distance(anchorBody.Location, satelliteBody.Location);
-            double force = Math.Sqrt((GravitationalConstant * (anchorBody.KgMass * satelliteBody.KgMass)) / distance);
-
-            var cosx = Math.Cos(angle);
-            var siny = Math.Sin(angle);
-
-            orbitalVelocity.X = cosx * force;
-            orbitalVelocity.Y = siny * force;
-
-            orbitalVelocity.X += anchorBody.VelocityVector.X;
-            orbitalVelocity.Y += anchorBody.VelocityVector.Y;
-
-            return orbitalVelocity;
-        }
-
-        public OrbitalBody? GetNearestBody(OrbitalBody to)
-        {
-            if (Bodies.Count == 0)
-                return null;
-            if (Bodies.Count == 1)
-                return to;
-
-            OrbitalBody? nearest = null;
-            double nearestDistance = double.MaxValue;
-            foreach(var obj in Bodies)
-            {
-                if (obj != to)
-                {
-                    double dist = PointHelper.Distance(to.Location, obj.Location);
-                    if (dist < nearestDistance)
-                    {
-                        nearestDistance = dist;
-                        nearest = obj;
-                    }
-                }
-            }
-            return nearest;
-        }
-
         public void Update(double tickMultiplier)
         {
             if (Bodies.Count == 0)

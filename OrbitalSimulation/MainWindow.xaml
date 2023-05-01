@@ -47,9 +47,6 @@
 
                 <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>
 
-                <ComboBox x:Name="DrawStyleCombobox" Margin="5" SelectedIndex="0" Style="{StaticResource StandartComboboxStyle}">
-                    <ComboBoxItem Content="Direct"/>
-                </ComboBox>
                 <CheckBox x:Name="DrawStationary" Content="Draw As Stationary" Margin="5" Style="{StaticResource StandartCheckBoxStyle}"/>
 
                 <GridSplitter Height="2" HorizontalAlignment="Stretch" Background="#FF2D2D5F"/>

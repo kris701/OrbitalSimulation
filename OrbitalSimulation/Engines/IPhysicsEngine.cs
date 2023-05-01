@@ -22,8 +22,6 @@ namespace OrbitalSimulation.Engines
 
         public void AddNewBody(OrbitalBody body);
 
-        public Point GetOrbitalVector(OrbitalBody satelliteBody, OrbitalBody anchorBody);
-        public OrbitalBody? GetNearestBody(OrbitalBody to);
         public void Update(double tickMultiplier);
         public Point CalculateNextLocation(OrbitalBody body);
         public List<Point> PredictPath(OrbitalBody body, int maxPathPoints, double maxPathLength);
