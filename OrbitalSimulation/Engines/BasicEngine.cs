@@ -42,6 +42,9 @@ namespace OrbitalSimulation.Engines
             orbitalVelocity.X = cosx * force;
             orbitalVelocity.Y = siny * force;
 
+            orbitalVelocity.X += anchorBody.VelocityVector.X;
+            orbitalVelocity.Y += anchorBody.VelocityVector.Y;
+
             return orbitalVelocity;
         }
 
